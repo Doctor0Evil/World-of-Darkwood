@@ -1,9 +1,0 @@
-{
-  "contracts": [
-    {
-      "id": "wod.asset.place.v1",
-      "path": "approvals/place_v1.wasm",
-      "enforce": ["checksum", "occlusion", "provenance"]
-    }
-  ]
-}
