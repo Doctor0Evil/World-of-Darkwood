@@ -8,9 +8,9 @@ World‑of‑Darkwood serves as:
 
 - A hierarchical world layout for forests, swamps, villages, ruins, towers, liminal spaces, and beyond, designed to stream regions and psychological states dynamically.  
 - A shared schema for tilesets, creatures, characters, and story encounters with strict, reusable templates for all branches.  
-- The reference repository for player progression (attributes, skills, traits, perks, and three core classes), wired to ALN/Web5‑DID progression tracking.[2][3]
+- The reference repository for player progression (attributes, skills, traits, perks, and three core classes), wired to ALN/Web5‑DID progression tracking.
 
-It is not a single game; it is the backbone for multiple survival‑horror experiences, including a top‑down Darkwood‑style sequel, AI‑driven scenarios, and RPG‑lite experiments, all grounded in the same rules.[3][4]
+It is not a single game; it is the backbone for multiple survival‑horror experiences, including a top‑down Darkwood‑style sequel, AI‑driven scenarios, and RPG‑lite experiments, all grounded in the same rules.
 
 ***
 
@@ -23,9 +23,9 @@ World‑of‑Darkwood organizes horror systems as durable engine modules:
 - `engine/world/GlobalMoodTensor` – tracks fear, despair, chaos, and hope to steer encounter intensity, audio design, and sanity events.  
 - `systems/SanitySystem` – defines uneasy, disturbed, shaken, and breaking bands; drives collapse events and perception distortions.  
 - `engine/npc/AIStateMachines` – declarative FSMs that enforce consistent hooks like `onPlayerApproach`, `onTradeRequest`, and `onThreat`.  
-- `engine/npc/PersonalitySystem` – personality vectors using a large trait set (Friendly, Cunning, Cruel, Sneaky, Mad, etc.) to parameterize all NPC and creature behavior.[4][3]
+- `engine/npc/PersonalitySystem` – personality vectors using a large trait set (Friendly, Cunning, Cruel, Sneaky, Mad, etc.) to parameterize all NPC and creature behavior.
 
-All content templates in this repo are expected to link back into these core modules.[3]
+All content templates in this repo are expected to link back into these core modules.
 
 ***
 
@@ -54,7 +54,7 @@ PERSISTENT_STATE_LINKS
   personality_system_ref: engine/npc/PersonalitySystem
 ```
 
-Each session documents which tilesets, creatures, characters, encounters, and engine hooks were created or modified, plus a concrete `next_session_entry_point` so there is never a “blank page” moment.[4][3]
+Each session documents which tilesets, creatures, characters, encounters, and engine hooks were created or modified, plus a concrete `next_session_entry_point` so there is never a “blank page” moment.
 
 ***
 
@@ -89,7 +89,7 @@ TILESET_DEFINITION_BLOCK
     }}
 ```
 
-Tilesets are then hooked into `VisionConeSystem` for FOV rules and into hazard controllers per biome.[3][4]
+Tilesets are then hooked into `VisionConeSystem` for FOV rules and into hazard controllers per biome.
 
 ### Creatures
 
@@ -124,7 +124,7 @@ CREATURE_DEFINITION_BLOCK
     }}
 ```
 
-These entries feed `Beastiary` modules and spawn matrices that respect contamination, sanity, and global mood.[4][3]
+These entries feed `Beastiary` modules and spawn matrices that respect contamination, sanity, and global mood.
 
 ### Characters (NPCs)
 
@@ -155,7 +155,7 @@ CHARACTER_DEFINITION_BLOCK
     }}
 ```
 
-Implementation paths are explicitly listed for IDE agents in `NPC_IMPLEMENTATION_BLOCK` with per‑file goals.[3][4]
+Implementation paths are explicitly listed for IDE agents in `NPC_IMPLEMENTATION_BLOCK` with per‑file goals.
 
 ### Story Encounters
 
@@ -186,13 +186,13 @@ STORY_ENCOUNTER_DEFINITION_BLOCK
     }}
 ```
 
-Outcomes must always thread back into `WorldMemoryCore`, `SanitySystem`, and `ContaminationSpiral`.[4][3]
+Outcomes must always thread back into `WorldMemoryCore`, `SanitySystem`, and `ContaminationSpiral`.
 
 ***
 
 ## Player Progression Model
 
-World‑of‑Darkwood defines a strict, anti‑exploit progression framework inspired by the original game’s skills and traits, but expanded into four clearly separated layers: attributes, skills, traits, and perks.[2][3]
+World‑of‑Darkwood defines a strict, anti‑exploit progression framework inspired by the original game’s skills and traits, but expanded into four clearly separated layers: attributes, skills, traits, and perks.
 
 ### Attributes (Innate Stats)
 
@@ -206,9 +206,9 @@ Suggested attribute set:
 - Perception – sensory acuity; sight radius, hearing thresholds (not “Awareness” as a skill).  
 - Intelligence – reasoning and technical understanding; affects certain crafting and ritual checks.  
 - Willpower – resistance to sanity loss, curses, and psychic pressure.  
-- Luck – systemic bias for edge‑case outcomes (loot rolls, misfires, miracle survivals).[5][3]
+- Luck – systemic bias for edge‑case outcomes (loot rolls, misfires, miracle survivals).
 
-Attributes are the base that traits and perks modify; they are not treated as skills. Luck is explicitly an attribute, not a skill.[2][3]
+Attributes are the base that traits and perks modify; they are not treated as skills. Luck is explicitly an attribute, not a skill.
 
 ### Skills (Learned Proficiencies)
 
@@ -216,9 +216,9 @@ Skills are discrete, 0–100 integer tracks that unlock options and efficiencies
 
 - Unique events (e.g., first time disarming a complex trap type).  
 - Major quest completions with skill tags.  
-- Reading specific books or training from rare NPCs.[5][3]
+- Reading specific books or training from rare NPCs.
 
-No action can be repeated for XP: every trigger is strictly one‑time or tightly contextual to prevent grinding or farming.[5][3]
+No action can be repeated for XP: every trigger is strictly one‑time or tightly contextual to prevent grinding or farming.
 
 Example universal skills:
 
@@ -236,9 +236,9 @@ Example universal skills:
 - Perception Training – extending practical use of Perception attribute (e.g., spotting traps, tells).  
 - Exploration – map annotation, route recall, non‑magical navigation improvements.  
 - Focus – resistance to panic in combat, slower aim sway under stress.  
-- Tinkering – repair depth and customization of gear.[5][3]
+- Tinkering – repair depth and customization of gear.
 
-Skill progression is slow and steep in its upper range, echoing harsh games where maxing a skill is a long‑term aspiration, not a default expectation.[3][5]
+Skill progression is slow and steep in its upper range, echoing harsh games where maxing a skill is a long‑term aspiration, not a default expectation.
 
 ### Traits (Permanent Trade‑Off Modifiers)
 
@@ -246,13 +246,13 @@ Traits modify primary and derived stats and skills with explicit pros and cons. 
 
 - Gained at key progression events (e.g., essence injections, story rites, trauma thresholds), not at will.  
 - Each trait has at least one meaningful upside and one meaningful downside.  
-- Traits can reference attributes and skills to create playstyle forks (e.g., “+Willpower, −Charisma equivalent, +Sanity loss from specific horrors”).[2][3]
+- Traits can reference attributes and skills to create playstyle forks (e.g., “+Willpower, −Charisma equivalent, +Sanity loss from specific horrors”).
 
 Examples:
 
 - Iron Lungs: +Endurance, −Stealth in tight spaces due to heavier breathing sounds.  
 - Fungal Tolerance: +resistance to certain toxins, −susceptibility to specific cures or light‑based effects.  
-- Cold‑Soaked: +resistance to cold events, −slower healing from burns and physical trauma.[3]
+- Cold‑Soaked: +resistance to cold events, −slower healing from burns and physical trauma.
 
 ### Perks (Milestone Powers)
 
@@ -260,12 +260,12 @@ Perks are special enhancements chosen every fifth player level, with:
 
 - 20 global perks plus 1 unique, class‑specific perk per class.  
 - Some perks offering multiple ranks, each rank providing incremental benefit.  
-- Hard requirements on attributes and skills; drugs can temporarily raise stats to experiment, but perks cannot be permanently unlocked while stats are drug‑inflated.[3]
+- Hard requirements on attributes and skills; drugs can temporarily raise stats to experiment, but perks cannot be permanently unlocked while stats are drug‑inflated.
 
 Perks must:
 
 - Add tactical variety (alternative attacks, riskier rituals, mobility options).  
-- Avoid over‑inflating damage or HP; combat stays lethal, as in the original game.[6][5]
+- Avoid over‑inflating damage or HP; combat stays lethal, as in the original game.
 
 ### ALN/Web5‑DID Progression Tracking
 
@@ -273,13 +273,13 @@ All progression events (attribute gains, skill increases, trait assignments, per
 
 - Each unlock is recorded as a micro‑transaction tied to a Web5‑DID.  
 - Costs are negligible and effectively invisible to the player; owning a single ALN token is enough for a lifetime of progression.  
-- On‑chain history helps prevent tampering and supports persistent identity across runs while remaining UX‑transparent.[7][5][3]
+- On‑chain history helps prevent tampering and supports persistent identity across runs while remaining UX‑transparent.
 
 ***
 
 ## Character Classes for Darkwood 2
 
-World‑of‑Darkwood defines three asymmetric but carefully constrained classes intended for survival‑horror, not power fantasies. They are primarily about flavor, unique interactions, and alternative problem‑solving, not DPS races.[5][3]
+World‑of‑Darkwood defines three asymmetric but carefully constrained classes intended for survival‑horror, not power fantasies. They are primarily about flavor, unique interactions, and alternative problem‑solving, not DPS races.
 
 ### Voltborn – Electric Survivor
 
@@ -290,13 +290,13 @@ Core properties:
 - Attribute bias: +Strength, +Endurance, moderate +Intelligence; slight −Willpower due to psychological strain.  
 - Passive: Slowly regenerates HP (e.g., 1–5 HP/sec) when near active electrical sources (lamps, generators, sparking machinery) within safe bounds.  
 - Utility: Enhanced interaction with terminals and machinery (shortcuts, alternative routes, trap disarms).  
-- Weakness: Increased vulnerability to magnetized, psychic, or spiritually‑charged attacks (Twin abilities, certain ghost events, corrupted electronics).[5][3]
+- Weakness: Increased vulnerability to magnetized, psychic, or spiritually‑charged attacks (Twin abilities, certain ghost events, corrupted electronics).
 
-Voltborn traits and perks carry psychological risk: specific perks raise contamination or sanity stress under overload, motivating use of drugs like Neural‑Stimuli to keep sanity in check without trivializing horror.[5]
+Voltborn traits and perks carry psychological risk: specific perks raise contamination or sanity stress under overload, motivating use of drugs like Neural‑Stimuli to keep sanity in check without trivializing horror.
 
 ### Rotkin – Mold‑Touched Survivor
 
-Concept: A mutated survivor whose blood hosts a regenerative mold, echoing the original’s essence system but re‑anchored to a class fantasy.[6][3]
+Concept: A mutated survivor whose blood hosts a regenerative mold, echoing the original’s essence system but re‑anchored to a class fantasy.
 
 Core properties:
 
@@ -305,13 +305,12 @@ Core properties:
 - Weakness: Severe vulnerability to fire (e.g., +75% damage from fire and certain heat hazards).  
 - Progression: Exclusive ability to use “mushroom‑growth” nodes for class‑specific progression; other classes cannot consume or channel these growths in the same way.  
 - Ecology: Can communicate with certain animals (e.g., fox‑like or carrion creatures) to gain diegetic hints, side‑quest hooks, or restricted barter opportunities with quest NPCs.  
-- Necro‑fungal Raise: Once per in‑game day, can animate 1–3 fresh corpses (not burned or destroyed) as fungal thralls that fight until their HP is depleted or they are incinerated; this is a strategic tool, not a permanent army.[3][5]
+- Necro‑fungal Raise: Once per in‑game day, can animate 1–3 fresh corpses (not burned or destroyed) as fungal thralls that fight until their HP is depleted or they are incinerated; this is a strategic tool, not a permanent army.
 
-Rotkin leans into world interaction and emergent tactics rather than direct stat dominance, preserving danger and fragility.[3]
-
+Rotkin leans into world interaction and emergent tactics rather than direct stat dominance, preserving danger and fragility.
 ### WraithLink – Haunted Medium
 
-Concept: The most “human” class, partially merged with spirits, used for intel, lore, and cursed risk‑reward.[3]
+Concept: The most “human” class, partially merged with spirits, used for intel, lore, and cursed risk‑reward.
 
 Core properties:
 
@@ -319,9 +318,9 @@ Core properties:
 - Ghost Affinity: Does not reduce the frequency or lethality of ghost encounters; instead, substantially increases the odds (+% chance) of contact events and spectral anomalies.  
 - Spirit Dialogue: Can talk to certain dead NPCs or spirits to glean extra narrative, alternate quest solutions, and unique warnings.  
 - Cursed Relics: Higher chance to find cursed relics—rare, highly valuable items that inflict ongoing paranormal events while held (hauntings, pursuit, ambient threats).  
-- Social Risk: When attempting to trade or display cursed relics in settlements, there is a chance that hidden forces (e.g., Twin influence) cause villagers to become hostile or mind‑controlled, turning a normal sale into an ambush event.[4][3]
+- Social Risk: When attempting to trade or display cursed relics in settlements, there is a chance that hidden forces (e.g., Twin influence) cause villagers to become hostile or mind‑controlled, turning a normal sale into an ambush event.
 
-WraithLink pushes players into “knowledge vs safety” dilemmas: more intel and shortcuts at the cost of escalated supernatural pressure.[3]
+WraithLink pushes players into “knowledge vs safety” dilemmas: more intel and shortcuts at the cost of escalated supernatural pressure.
 
 ***
 
@@ -394,3 +393,4 @@ SESSION_PROGRESS_TRACKING
     required_context:
       - <brief reminders or design decisions that must be remembered>
 ```
+
