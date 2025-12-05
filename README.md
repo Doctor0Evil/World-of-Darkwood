@@ -1,4 +1,4 @@
-World‑of‑Darkwood is the canonical, engine‑first world bible and content hub for a multi‑biome, multi‑era survival‑horror universe that aims to be deeper, more systemic, and more reactive than traditional MMO worlds while retaining the unforgiving tension of top‑down horror. It treats regions, NPCs, creatures, skills, traits, perks, and classes as data‑driven assets wired into a unified horror engine, not as disconnected content drops.[1][2]
+World‑of‑Darkwood is the canonical, engine‑first world bible and content hub for a multi‑biome, multi‑era survival‑horror universe that aims to be deeper, more systemic, and more reactive than traditional MMO worlds while retaining the unforgiving tension of top‑down horror. It treats regions, NPCs, creatures, skills, traits, perks, and classes as data‑driven assets wired into a unified horror engine, not as disconnected content drops.
 
 ***
 
@@ -393,4 +393,5 @@ SESSION_PROGRESS_TRACKING
     required_context:
       - <brief reminders or design decisions that must be remembered>
 ```
+
 
