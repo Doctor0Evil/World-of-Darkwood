@@ -1,0 +1,120 @@
+<mainpage-leftcolumn-start />
+
+<!----------------------------------Start of main page------------------------------------------>
+<!----------------------------------Wiki Intro Main Page------------------------------------------>
+<div style="text-align: center;"> 
+<span style="font-size:170%">'''Welcome to {{SITENAME}}'''</span>
+</div>
+[[File:Transparent logo small.jpg|center|500px|link=About the game]]
+<p style="text-align:center">''Darkwood'' is a challenging and unforgiving top-down survival horror game in development by [https://www.acidwizardstudio.com/ Acid Wizard Studio].<br />The game is available on [https://store.steampowered.com/app/274520/ Steam] and [https://www.gog.com/game/darkwood GOG] for PC, Mac OS X, Linux, and SteamOS.<br />
+You can now also get ''Darkwood'' on the PS4, PS5, Xbox One, Xbox Series X/S and Nintendo Switch.</p>
+
+<gallery type="slider">
+Darkwood_slider.jpg|Darkwood|link=Darkwood|linktext=Learn more about the game and its specifications!
+Characters_slider.jpg|Characters|link=Characters|linktext=Learn more about the characters you meet in ''Darkwood''!
+Locations_slider.jpg|Locations|link=Locations|linktext=Check out the locations found in ''Darkwood''!
+Begginer's guide_slider.jpg|Beginner's Guide|link=Beginner's Guide|linktext=New to the game? Check out our Beginner's Guide!
+</gallery>
+
+<!----------------------------------Navigation Main Page------------------------------------------>
+<center>
+{| class="mainPageTable" cellpadding="1" cellspacing="1" style="width: 80%;"
+|-
+| [[File:icon_char_03.jpg|48px|center|link=Characters]]
+| [[File:icon_crea.jpg|48px|center|link=Creatures]]
+| [[File:Icon bandages.jpg|48px|center|link=Items]]
+| [[File:Hideout.jpg|48px|center|link=Locations]]
+| [[File:Icon toy rocket.jpg|48px|center|link=Mechanics]]
+| [[File:Skills.jpg|48px|center|link=Skills]]
+| [[File:Icon axe.jpg|48px|center|link=Weapons]]
+|-
+! [[Characters]]
+! [[Creatures]]
+! [[Items]]
+! [[Locations]]
+! [[Mechanics]]
+! [[Skills]]
+! [[Weapons]]
+|}
+</center>
+
+<!----------------------------------Tabber------------------------------------------>
+<!--{{MainpageTabber}}-->
+
+<!----------------------------------Games------------------------------------------>
+<div style="text-align: center;"> 
+== Other Unity Games ==
+</div>
+{{w:UnityWikis}}
+<mainpage-endcolumn />
+
+<!----------------------------------End of main page------------------------------------------>
+<mainpage-rightcolumn-start />
+<!------------------------Start of right column------------------------------------------>
+<!----------------------------------Beginner Stuff--------------------------------------->
+<div class="mainPageBoxDark">
+<div style="text-align: center;"> 
+=== New player? ===
+----
+''Darkwood'' is a challenging and unforgiving game. What is there to say against a little help to get you started? Spoiler-free of course.
+</div>
+* The [[Beginner's Guide]] prepares you for the first few nights and highlights some of the more obscure game mechanics.
+* The [[Darkwood|Darkwood page]] gives you a general overview on the game. The perfect place to find out whether ''Darkwood'' is for you.
+</div>
+<!----------------------------------How to help------------------------------------------>
+<div class="mainPageBoxDark">
+<div style="text-align: center;">
+
+=== How to help ===
+</div>
+----
+Feel free to [[Special:Userlogin|join us]] and contribute to this wiki. Everyone is free to create a new page or edit an [[Special:Allpages|existing one]].
+
+Before you start however please read our editing guides:
+* [[Darkwood Wiki:Templates|Templates]]
+* Style Guide (soon)
+* [[Darkwood Wiki:Images|Images]]
+* [[Darkwood Wiki:Update policy|Update Policy]]
+
+Any additional questions about wiki editing should be directed towards the [[Special:ListUsers/sysop|administrators]].
+
+* New to wikis? Check out our [[Help:Contents|help page library]].
+* Not sure where to start? [[:Category:Article stubs|Article stubs]] always need expansion.
+* Browse through wiki activity in [[Special:RecentChanges|Recent Changes]].
+<!--<createbox>
+width=24
+break=no
+buttonlabel=Create new page
+</createbox>-->
+</div>
+<!----------------------------------Admins------------------------------------------>
+<div class="mainPageBoxDark">
+<div style="text-align: center;"> 
+=== Administration ===
+</div>
+----
+Any problems or questions? Contact administration:
+* [[User:Theacidwizard|Theacidwizard]]
+* [[User:Megix123|Megix123]]
+* [[User:KillerFRIEND|KillerFRIEND]]
+<!--<createbox>
+width=24
+break=no
+buttonlabel=Create new page
+</createbox>-->
+</div>
+<!----------------------------------Steam and other related apps------------------------------------------>
+<center>
+<div>
+<div style="margin: 24px auto; width: 88%; margin-bottom:14px;">
+<div style="margin-left:0px; width: 50%; float:left;">[[File:Steam.jpg|link=https://store.steampowered.com/app/274520/|118px]]</div>
+<div style="width: 50%; float:left; margin-bottom:12px;">[[File:Gog.jpg|link=https://www.gog.com/game/darkwood/|118px]]</div>
+<div style="width: 100%; margin-bottom:24px;">[[File:Discord.png|link=https://discord.gg/6ePSAdw|248px]]</div>
+</div>
+</div>
+</center>
+<mainpage-endcolumn />
+ <!------------------------End of right column------------------------------------------>
+[[ru:]]
+__NOTOC__
+[[Category:Darkwood Wiki]]
