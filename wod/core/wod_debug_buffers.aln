@@ -1,0 +1,241 @@
+'//////////////////////////////////////////////////////////////////////////////
+' WOD Debug Palette, Material Adapter, and Physics Snapshot Ring Buffer
+'//////////////////////////////////////////////////////////////////////////////
+
+SuperStrict
+
+Const WOD_MAX_PALETTE_ENTRIES:Int   = 256
+Const WOD_MAX_ENTITIES:Int          = 4096
+Const WOD_MAX_FRAMES_LOGGED:Int     = 4096  ' circular buffer length
+
+'==============================================================================
+' 1. Palette table (256 entries, RGBA)
+'==============================================================================
+
+Type WODColorRGBA
+	Field r:Byte  ' 0..255
+	Field g:Byte
+	Field b:Byte
+	Field a:Byte
+End Type
+
+Global WOD_Palette:WODColorRGBA[WOD_MAX_PALETTE_ENTRIES]
+
+Function WOD_InitDefaultPalette:Void()
+	' 0: empty / background
+	WOD_Palette[0].r = 0  ; WOD_Palette[0].g = 0  ; WOD_Palette[0].b = 0   ; WOD_Palette[0].a = 0
+
+	' 1: solid wall
+	WOD_Palette[1].r = 80 ; WOD_Palette[1].g = 80 ; WOD_Palette[1].b = 80  ; WOD_Palette[1].a = 255
+
+	' 2: obstacle
+	WOD_Palette[2].r = 120; WOD_Palette[2].g = 80 ; WOD_Palette[2].b = 40  ; WOD_Palette[2].a = 255
+
+	' 3: player
+	WOD_Palette[3].r = 40 ; WOD_Palette[3].g = 200; WOD_Palette[3].b = 40  ; WOD_Palette[3].a = 255
+
+	' 4: enemy
+	WOD_Palette[4].r = 200; WOD_Palette[4].g = 40 ; WOD_Palette[4].b = 40  ; WOD_Palette[4].a = 255
+
+	' 5: projectile / thrown object
+	WOD_Palette[5].r = 240; WOD_Palette[5].g = 220; WOD_Palette[5].b = 80  ; WOD_Palette[5].a = 255
+
+	' Remaining entries reserved for additional materials / debug layers.
+End Function
+
+'==============================================================================
+' 2. Material → palette index adapter and dump to IndexedPixmap
+'==============================================================================
+
+' Canonical material IDs for tiles
+Const MAT_EMPTY:Int      = 0
+Const MAT_WALL:Int       = 1
+Const MAT_OBSTACLE:Int   = 2
+Const MAT_PLAYER:Int     = 3
+Const MAT_ENEMY:Int      = 4
+Const MAT_PROJECTILE:Int = 5
+
+Function WOD_MaterialToPaletteIndex:Byte( matId:Int )
+	Select matId
+		Case MAT_EMPTY      ; Return 0
+		Case MAT_WALL       ; Return 1
+		Case MAT_OBSTACLE   ; Return 2
+		Case MAT_PLAYER     ; Return 3
+		Case MAT_ENEMY      ; Return 4
+		Case MAT_PROJECTILE ; Return 5
+		Default
+			' Unknown material → debug magenta slot near the end of the palette.
+			Return 250
+	End Select
+End Function
+
+' Write one diagnostic frame into an IndexedPixmap from a tile/material buffer
+Function WOD_DumpMaterialLayerToPixmap:Void( pix:IndexedPixmap, tiles:Int Ptr )
+	Local w:Int = pix.m_Width
+	Local h:Int = pix.m_Height
+
+	For Local y:Int = 0 Until h
+		For Local x:Int = 0 Until w
+			Local idx:Int = y * w + x
+			Local matId:Int = tiles[idx]
+			Local palIndex:Byte = WOD_MaterialToPaletteIndex( matId )
+			pix.WritePixel( x, y, palIndex )
+		Next
+	Next
+End Function
+
+'==============================================================================
+' 3. Timing-aware physics snapshot ring buffer
+'==============================================================================
+
+Type WODPhysicsSample
+	Field timestamp_s:Double   ' high-precision time
+	Field frame_number:Int
+	Field entity_id:Int
+
+	Field pos_x_m:Float
+	Field pos_y_m:Float
+	Field vel_x_mps:Float
+	Field vel_y_mps:Float
+
+	Field force_x_n:Float
+	Field force_y_n:Float
+	Field mass_kg:Float
+
+	Field collision_flag:Int
+	Field impulse_ns:Float
+End Type
+
+' 2D ring buffer: [frame_slot][entity_index]
+Global WOD_PhysicsRing:WODPhysicsSample[WOD_MAX_FRAMES_LOGGED][WOD_MAX_ENTITIES]
+
+Global WOD_PhysicsFixedDt_s:Double = 1.0 / 60.0
+Global WOD_PhysicsFrameCounter:Int = 0
+
+Function WOD_BeginPhysicsFrame:Void( now_s:Double )
+	Local slot:Int = WOD_PhysicsFrameCounter Mod WOD_MAX_FRAMES_LOGGED
+
+	' Optional: clear / mark this slot for all entities so an IDE agent
+	' can detect unused entries explicitly.
+	' For Local i:Int = 0 Until WOD_MAX_ENTITIES
+	' 	WOD_PhysicsRing[slot][i].entity_id = -1
+	' Next
+End Function
+
+Function WOD_RecordEntitySample:Void( _
+	now_s:Double, entIndex:Int, entId:Int, _
+	px:Float, py:Float, vx:Float, vy:Float, fx:Float, fy:Float, m:Float, _
+	collided:Int, j_ns:Float )
+
+	If entIndex < 0 Or entIndex >= WOD_MAX_ENTITIES Then Return
+
+	Local slot:Int = WOD_PhysicsFrameCounter Mod WOD_MAX_FRAMES_LOGGED
+	Local s:WODPhysicsSample Ptr = Varptr WOD_PhysicsRing[slot][entIndex]
+
+	s\timestamp_s   = now_s
+	s\frame_number  = WOD_PhysicsFrameCounter
+	s\entity_id     = entId
+
+	s\pos_x_m       = px
+	s\pos_y_m       = py
+	s\vel_x_mps     = vx
+	s\vel_y_mps     = vy
+	s\force_x_n     = fx
+	s\force_y_n     = fy
+	s\mass_kg       = m
+
+	s\collision_flag = collided
+	s\impulse_ns     = j_ns
+End Function
+
+Function WOD_EndPhysicsFrame:Void()
+	WOD_PhysicsFrameCounter :+ 1
+End Function
+
+'==============================================================================
+' 4. Minimal binary serializer for physics + indexed frames
+'==============================================================================
+
+Const WOD_LOG_MAGIC:Int = $574F444C  ' "WODL"
+
+Type WODLogChunkHeader
+	Field magic:Int
+	Field version:Int
+	Field frame_start:Int
+	Field frame_end:Int
+	Field entity_count:Int
+	Field sample_count:Int
+	Field pixmap_width:Int
+	Field pixmap_height:Int
+End Type
+
+' Writes:
+'   - Header
+'   - Physics samples for [frameStart..frameEnd], frame-major then entity
+'   - Raw 8-bit indexed pixmap bytes (one per frame in pixmaps[])
+Function WOD_WritePhysicsChunk:Void( _
+	filename:String, _
+	frameStart:Int, frameEnd:Int, _
+	entityCount:Int, _
+	pixmaps:IndexedPixmap[] )
+
+	Local f:TStream = WriteStream( filename )
+	If f = Null Then Return
+
+	Local hdr:WODLogChunkHeader = New WODLogChunkHeader
+	hdr.magic         = WOD_LOG_MAGIC
+	hdr.version       = 1
+	hdr.frame_start   = frameStart
+	hdr.frame_end     = frameEnd
+	hdr.entity_count  = entityCount
+	hdr.sample_count  = (frameEnd - frameStart + 1) * entityCount
+	hdr.pixmap_width  = pixmaps[0].m_Width
+	hdr.pixmap_height = pixmaps[0].m_Height
+
+	f.WriteInt( hdr.magic )
+	f.WriteInt( hdr.version )
+	f.WriteInt( hdr.frame_start )
+	f.WriteInt( hdr.frame_end )
+	f.WriteInt( hdr.entity_count )
+	f.WriteInt( hdr.sample_count )
+	f.WriteInt( hdr.pixmap_width )
+	f.WriteInt( hdr.pixmap_height )
+
+	For Local frame:Int = frameStart To frameEnd
+		Local slot:Int = frame Mod WOD_MAX_FRAMES_LOGGED
+		For Local ent:Int = 0 Until entityCount
+			Local s:WODPhysicsSample Ptr = Varptr WOD_PhysicsRing[slot][ent]
+
+			f.WriteDouble( s\timestamp_s )
+			f.WriteInt( s\frame_number )
+			f.WriteInt( s\entity_id )
+
+			f.WriteFloat( s\pos_x_m )
+			f.WriteFloat( s\pos_y_m )
+			f.WriteFloat( s\vel_x_mps )
+			f.WriteFloat( s\vel_y_mps )
+			f.WriteFloat( s\force_x_n )
+			f.WriteFloat( s\force_y_n )
+			f.WriteFloat( s\mass_kg )
+
+			f.WriteInt( s\collision_flag )
+			f.WriteFloat( s\impulse_ns )
+		Next
+	Next
+
+	For Local i:Int = 0 Until pixmaps.Length
+		Local pix:IndexedPixmap = pixmaps[i]
+		Local size:Int = pix.m_Width * pix.m_Height
+		f.WriteBytes( pix.m_Pixels, size )
+	Next
+
+	f.Close()
+End Function
+
+Function WOD_LogWindowForAnalysis:Void( _
+	frameStart:Int, frameEnd:Int, entityCount:Int, _
+	pixmaps:IndexedPixmap[] )
+
+	Local rawName:String = "wod_phys_" + frameStart + "_" + frameEnd + ".bin"
+	WOD_WritePhysicsChunk( rawName, frameStart, frameEnd, entityCount, pixmaps )
+End Function
