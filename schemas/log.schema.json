@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BattleLog",
+  "type": "object",
+  "required": ["scene_ref", "battle_log", "summary"],
+  "properties": {
+    "scene_ref": { "type": "string" },
+    "battle_log": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["player", "wild_dog", "turns"],
+      "properties": {
+        "player": {
+          "type": "object",
+          "properties": {
+            "hp": { "type": "number" },
+            "stamina": { "type": "number" },
+            "attack": { "type": "number" }
+          }
+        },
+        "wild_dog": {
+          "type": "object",
+          "properties": {
+            "hp": { "type": "number" },
+            "attack": { "type": "number" },
+            "speed": { "type": "number" }
+          }
+        },
+        "turns": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,465 @@
+# Environment readiness checklist for Windows-of-Death
+
+Use this as a compliance-stamped preflight. I’ve designed it so you can copy-paste and check off each item with evidence in your audit trail.
+
+- **OS baseline:** Windows 10/11 Pro or Server 2019+ with latest cumulative updates, Windows Defender enabled, Controlled Folder Access reviewed for dev directories.
+- **PowerShell:** PowerShell 7+ installed alongside Windows PowerShell 5.1; script execution policy set to AllSigned for production, RemoteSigned for dev.
+- **Privilege model:** Least-privilege local dev accounts; dedicated service account(s) for scheduled tasks and asset sync with role-based scopes.
+- **Version control:** Git with signed commits (GPG or Signtool) and protected branches; Git LFS enabled for binary assets.
+- **Secrets management:** Windows Credential Manager or Azure Key Vault for local; absolutely no secrets in repo or logs.
+- **Time sync:** NTP aligned; event timestamps must match repo and build logs for causal traceability.
+- **Storage layout:** Separate “operational” and “narrative” asset roots; read-only mirrors for production builds; write-ahead audit logs.
+- **Telemetry and audit:** Centralized log folder with rotation; event IDs reserved for build, deploy, asset placement, and narrative events; JSONL for machine parsing and human-readable summaries.
+- **Policy baselines:** Defender exclusions minimal and documented; ScriptBlockLogging enabled for dev; transcription enabled for CI runners if permissible.
+- **Tooling:** Swarmnet-Console available; connector registry and payload interpreter templates checked into repo; schema validation step in CI.
+- **Deterministic seeding:** Single source of truth for RNG seeds per build + per session; seeds recorded in audit logs and embedded in save files.
+- **Self-healing:** Watchdog scheduled task(s) for connector health, retry backoff, quarantine on repeated failure, and annotated reroute logic.
+- **Network hygiene:** Offline-first dev flow; clearly marked endpoints for any remote asset registries; explicit allowlists.
+
+---
+
+# Compliance and audit stamping
+
+#### PowerShell logging + task identity
+
+```powershell
+# Enable dev-friendly logging (tighten for prod)
+Set-ItemProperty HKLM:\SOFTWARE\Microsoft\PowerShell\3\PowerShellEngine -Name EnableScriptBlockLogging -Value 1
+Set-ItemProperty HKLM:\SOFTWARE\Microsoft\PowerShell\3\PowerShellEngine -Name EnableTranscription -Value 1
+
+# Create a dedicated service account (run in elevated shell)
+New-LocalUser -Name "WoD_Svc" -NoPassword
+# Assign rights minimally (example: read/write to asset roots, log folder)
+$paths = @("C:\WoD\assets", "C:\WoD\logs", "C:\WoD\registry")
+foreach ($p in $paths) { icacls $p /grant "WoD_Svc:(OI)(CI)M" }
+```
+
+#### Audit log scaffold
+
+```powershell
+$logRoot = "C:\WoD\logs"
+New-Item -ItemType Directory -Path $logRoot -Force | Out-Null
+$sessionId = (Get-Date).ToString("yyyyMMdd-HHmmss") + "-" + (New-Guid)
+$logFile = Join-Path $logRoot ("session-" + $sessionId + ".jsonl")
+
+function Write-WoDLog {
+    param(
+        [string]$EventType,
+        [hashtable]$Data
+    )
+    $entry = @{
+        ts = (Get-Date).ToString("o")
+        event = $EventType
+        actor = $env:USERNAME
+        session = $sessionId
+        data = $Data
+    } | ConvertTo-Json -Compress
+    Add-Content -Path $logFile -Value $entry
+}
+```
+
+---
+
+# Sandbox progression for game development steps
+
+We’ll treat this thread as a “sandbox”: I’ll keep steps deterministic, audit-ready, and resume-able. Each step can be executed independently and leaves an evidence trail. If anything is missing, I’ll flag it and propose a remediation.
+
+## Step 0: Initialize registry and seeds
+
+```yaml
+# C:\WoD\registry\connectors.yml
+version: 1
+registry_id: wod-main
+seeds:
+  build_seed: 424242
+  session_seed_strategy: monotonic-increment
+namespaces:
+  - name: core
+    quota:
+      placements_per_session: 100
+      max_concurrent_connectors: 10
+connectors:
+  - id: asset-sync-local
+    type: filesystem
+    root: C:\WoD\assets
+    mode: read-write
+    audit: true
+  - id: narrative-events
+    type: interpreter
+    script: C:\WoD\interpreters\narrative.ps1
+    audit: true
+policies:
+  attribution:
+    require_actor_handle: true
+  compliance:
+    require_signed_payloads: false   # set true in prod
+```
+
+- **Outcome:** Registry exists, seeds defined, quotas set, attribution required.
+
+## Step 1: Establish asset roots and mirrors
+
+```powershell
+$roots = @("C:\WoD\assets\operational", "C:\WoD\assets\narrative", "C:\WoD\assets\mirror")
+foreach ($r in $roots) { New-Item -ItemType Directory -Path $r -Force | Out-Null }
+Write-WoDLog -EventType "asset_roots_init" -Data @{ roots = $roots }
+```
+
+- **Outcome:** Clear separation between operational, narrative, and read-only mirrors.
+
+## Step 2: Payload interpreters (operational + narrative)
+
+```powershell
+# C:\WoD\interpreters\operational.ps1
+param([string]$PayloadPath)
+. $PayloadPath
+Write-WoDLog -EventType "operational_payload_exec" -Data @{ payload = $PayloadPath; status = "ok" }
+
+# C:\WoD\interpreters\narrative.ps1
+param([string]$PayloadPath)
+. $PayloadPath
+Write-WoDLog -EventType "narrative_payload_exec" -Data @{ payload = $PayloadPath; status = "ok" }
+```
+
+- **Outcome:** Both interpreters load and log executions; switch to signed payloads for prod.
+
+## Step 3: Deterministic asset placement
+
+```yaml
+# C:\WoD\payloads\place_asset.yml
+kind: placement
+actor_handle: xboxtjmcfarmer
+seed_ref: build_seed
+target:
+  namespace: core
+  area: east-wing
+asset:
+  id: door-iron-01
+  src: C:\WoD\assets\operational\door-iron-01.glb
+rules:
+  collision: fail_on_conflict
+  quotas: enforce
+audit:
+  reason: "Level blockout pass A"
+```
+
+```powershell
+# C:\WoD\scripts\place_asset.ps1
+param([string]$Payload = "C:\WoD\payloads\place_asset.yml")
+# parse YAML (assumes powershell-yaml module installed)
+$spec = ConvertFrom-Yaml (Get-Content $Payload -Raw)
+Write-WoDLog -EventType "placement_attempt" -Data $spec
+
+# deterministic position (example: hash-based seed -> coordinates)
+$seed = $spec.seed_ref
+$hash = (Get-FileHash $spec.asset.src -Algorithm SHA256).Hash
+$px = [int]("0x" + $hash.Substring(0,8)) % 100
+$py = [int]("0x" + $hash.Substring(8,8)) % 100
+$position = @{ x = $px; y = $py; z = 0 }
+
+Write-WoDLog -EventType "placement_resolved" -Data @{ asset = $spec.asset.id; pos = $position }
+Copy-Item $spec.asset.src "C:\WoD\assets\mirror\" -Force
+Write-WoDLog -EventType "placement_committed" -Data @{ asset = $spec.asset.id; pos = $position; mirror = "ok" }
+```
+
+- **Outcome:** Placement is reproducible, logged, and mirrored.
+
+## Step 4: Scheduled watchdog for connector health
+
+```powershell
+$script = "C:\WoD\scripts\watchdog.ps1"
+@'
+$errors = @()
+if (-not (Test-Path "C:\WoD\assets")) { $errors += "missing_assets_root" }
+if (-not (Test-Path "C:\WoD\registry\connectors.yml")) { $errors += "missing_registry" }
+if ($errors.Count -gt 0) {
+  Write-WoDLog -EventType "watchdog_alert" -Data @{ errors = $errors }
+} else {
+  Write-WoDLog -EventType "watchdog_ok" -Data @{ checked = (Get-Date).ToString("o") }
+}
+'@ | Set-Content $script
+
+$action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoProfile -File `"$script`""
+$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval (New-TimeSpan -Minutes 5) -RepetitionDuration ([TimeSpan]::MaxValue)
+Register-ScheduledTask -TaskName "WoD_Watchdog" -Action $action -Trigger $trigger -User "WoD_Svc" -RunLevel LeastPrivilege
+```
+
+- **Outcome:** Continuous health checks with audit entries and minimal privileges.
+
+## Step 5: CI preflight and artifact stamping
+
+```powershell
+# Preflight script for CI runners
+Write-WoDLog -EventType "ci_preflight" -Data @{
+  powershell_version = $PSVersionTable.PSVersion.ToString()
+  git_version = (& git --version)
+  lfs = (& git lfs version)
+  registry_exists = Test-Path "C:\WoD\registry\connectors.yml"
+}
+```
+
+- **Outcome:** Build pipeline evidence: versions, registry presence, and reproducibility hooks.
+
+---
+
+# Asset placement workflow that enforces quotas and attribution
+
+- **Session start:** Generate or increment session seed; write a session-start log with actor handle and quotas.
+- **Validation:** Validate payload against schema; enforce actor_handle, namespace quota, collision rules.
+- **Placement:** Compute deterministic coordinates or routing based on seed and asset fingerprint; write “attempt”, “resolved”, and “committed” log events.
+- **Review:** Produce a human-readable placement summary; flag any quota hits or collisions.
+- **Rollback:** Maintain an “undo” payload that removes or repositions assets using the same deterministic inputs.
+
+---
+
+# Failsafes and self-healing
+
+- **Reroute logic:** On connector failure, switch to read-only mirror; queue write operations until health recovers; annotate reroutes in logs.
+- **Quarantine:** Move any malformed payloads to a quarantine folder with automatic issue stub generation.
+- **Backoff:** Exponential backoff for retries; cap attempts; escalate to a “needs-human” event with links to logs.
+- **Recovery tests:** Scheduled job runs a minimal end-to-end placement using a synthetic asset; alerts if any stage fails.
+
+---
+
+# What I need to fully confirm your environment
+
+- **OS and versions:** Windows edition, build numbers, PowerShell versions.
+- **Paths:** Your intended WoD root paths (if different from C:\WoD).
+- **Accounts:** Whether you want a local service account or domain account for tasks.
+- **CI details:** Which runner (GitHub Actions self-hosted, Azure DevOps, etc.) and artifact storage.
+- **Modules:** Whether powershell-yaml or an alternative parser is available; I can swap to pure-PS parsing if needed.
+
+If you share those, I’ll validate each item and provide a short “Pass/Fail” matrix with remediation steps. In the meantime, feel free to run the copy-paste blocks above; each will create audit entries you can review to confirm the sandbox is behaving deterministically.
+Perfect — thanks for laying out the full device profile and the repos you want to integrate. Let’s walk through this in a **compliance-stamped, step‑by‑step progression** so your *LivingRoom* machine becomes a reproducible sandbox for **Windows‑of‑Death** development, with **ALN syntax parsing**, a **Bitshell runner**, and **Snowflake agentic‑AI hooks into Swarmnet**.
+
+---
+
+## 🔍 Environment Readiness (based on your specs)
+
+- **OS:** Windows 10 Home 22H2, build 19045.6396 → ✅ supported, but note: Home edition lacks some enterprise policy controls (e.g., Group Policy, Hyper‑V). For CI/CD you’ll want to enforce compliance via scripts rather than domain policies.
+- **CPU/GPU:** Ryzen 5 2400G + Vega 11 iGPU → ✅ sufficient for dev/test workloads, not heavy GPU compute.
+- **RAM:** 12 GB → ✅ workable, but keep an eye on memory when running multiple agents.
+- **Storage:** 932 GB HDD → ⚠️ slower I/O. Recommend carving a dedicated NTFS partition for WoD assets + logs to avoid fragmentation.
+- **Terminal:** Windows Terminal 1.22 → ✅ modern, supports multiple shells (PowerShell 7, CMD, Azure Cloud Shell).
+
+---
+
+## 🛠 Step‑by‑Step Sandbox Setup
+
+### Step 1. Install prerequisites
+```powershell
+# Install Git + PowerShell 7
+winget install --id Git.Git -e
+winget install --id Microsoft.Powershell -e
+
+# Optional: YAML parser for PowerShell
+Install-Module powershell-yaml -Scope CurrentUser -Force
+```
+
+### Step 2. Clone ALN parser + Swarmnet
+```powershell
+mkdir C:\WoD\src -Force
+cd C:\WoD\src
+
+git clone https://github.com/Doctor0Evil/ALN-Programming-Language.git aln-parser
+git clone https://github.com/Doctor0Evil/swarmnet.git swarmnet
+```
+
+- **ALN parser** → provides `.aln` syntax parsing and interpreter hooks.
+- **Swarmnet** → distributed AI orchestration platform with Bitshell, nanoswarm configs, and compliance playbooks.
+
+### Step 3. Create Bitshell runner
+Swarmnet already includes **bitshell functions** and `.aln` configs. Wrap them in a scheduled task or service:
+
+```powershell
+$bitshell = "C:\WoD\src\swarmnet\bitshell\bitshell-functions.ps1"
+$action = New-ScheduledTaskAction -Execute "pwsh.exe" -Argument "-NoProfile -File `"$bitshell`""
+$trigger = New-ScheduledTaskTrigger -AtStartup
+Register-ScheduledTask -TaskName "WoD_BitshellRunner" -Action $action -Trigger $trigger -User $env:USERNAME -RunLevel Highest
+```
+
+- **Outcome:** Bitshell auto‑loads at startup, ready to interpret `.aln` payloads.
+
+### Step 4. Integrate Snowflake agentic‑AI
+You mentioned the Snowflake AI agents guide. To integrate:
+
+1. Define an **agent config** in Swarmnet’s `/agents` folder:
+   ```yaml
+   # C:\WoD\src\swarmnet\agents\snowflake-agent.yml
+   agent_id: snowflake-ai
+   type: external
+   entrypoint: fetch.py
+   capabilities:
+     - orchestration
+     - nanoswarm
+   compliance:
+     audit: true
+     attribution: required
+   ```
+
+2. Register in Swarmnet config:
+   ```yaml
+   agents:
+     - include: agents/snowflake-agent.yml
+   ```
+
+3. Run:
+   ```powershell
+   cd C:\WoD\src\swarmnet
+   pwsh -File .\bitshell\bitshell-functions.ps1 -Agent snowflake-ai
+   ```
+
+---
+
+## 📑 Compliance & Audit Hooks
+
+- **Audit logs:**  
+  `C:\WoD\logs\session-*.jsonl` → every placement, interpreter call, and agent action is logged.
+- **Attribution:** Require `actor_handle` in every payload.
+- **Quotas:** Enforce placement/session quotas in `connectors.yml`.
+
+---
+
+Got it — thanks for clarifying. Since you’re on **Windows 10 Home** without admin rights, we’ll sandbox everything under your user profile at:
+
+```
+C:\Users\Hunter\Windows-of-Death
+```
+
+That means:  
+- No scheduled tasks, no service accounts, no registry edits.  
+- Everything must run **portable**, inside your user space.  
+- Compliance/audit still works, but logs and configs live under your root.
+
+---
+
+## 🛠 Step‑by‑Step Non‑Admin Sandbox Setup
+
+### Step 1. Create the folder structure
+```powershell
+$root = "C:\Users\Hunter\Windows-of-Death"
+$dirs = @("$root\assets\operational",
+          "$root\assets\narrative",
+          "$root\assets\mirror",
+          "$root\registry",
+          "$root\interpreters",
+          "$root\logs",
+          "$root\payloads",
+          "$root\scripts")
+
+foreach ($d in $dirs) { New-Item -ItemType Directory -Path $d -Force | Out-Null }
+```
+
+---
+
+### Step 2. Audit log function (user‑space only)
+```powershell
+$logRoot = "$root\logs"
+$sessionId = (Get-Date).ToString("yyyyMMdd-HHmmss") + "-" + (New-Guid)
+$logFile = Join-Path $logRoot ("session-" + $sessionId + ".jsonl")
+
+function Write-WoDLog {
+    param([string]$EventType, [hashtable]$Data)
+    $entry = @{
+        ts = (Get-Date).ToString("o")
+        event = $EventType
+        actor = $env:USERNAME
+        session = $sessionId
+        data = $Data
+    } | ConvertTo-Json -Compress
+    Add-Content -Path $logFile -Value $entry
+}
+```
+
+---
+
+### Step 3. Connector registry (user‑space YAML)
+```yaml
+# C:\Users\Hunter\Windows-of-Death\registry\connectors.yml
+version: 1
+registry_id: wod-user
+seeds:
+  build_seed: 1337
+  session_seed_strategy: monotonic-increment
+namespaces:
+  - name: core
+    quota:
+      placements_per_session: 50
+      max_concurrent_connectors: 5
+connectors:
+  - id: asset-sync-local
+    type: filesystem
+    root: C:\Users\Hunter\Windows-of-Death\assets
+    mode: read-write
+    audit: true
+  - id: narrative-events
+    type: interpreter
+    script: C:\Users\Hunter\Windows-of-Death\interpreters\narrative.ps1
+    audit: true
+policies:
+  attribution:
+    require_actor_handle: true
+```
+
+---
+
+### Step 4. Payload interpreters
+```powershell
+# C:\Users\Hunter\Windows-of-Death\interpreters\narrative.ps1
+param([string]$PayloadPath)
+. $PayloadPath
+Write-WoDLog -EventType "narrative_payload_exec" -Data @{ payload = $PayloadPath; status = "ok" }
+```
+
+---
+
+### Step 5. Deterministic placement script
+```powershell
+# C:\Users\Hunter\Windows-of-Death\scripts\place_asset.ps1
+param([string]$Payload = "$root\payloads\place_asset.yml")
+
+$spec = ConvertFrom-Yaml (Get-Content $Payload -Raw)
+Write-WoDLog -EventType "placement_attempt" -Data $spec
+
+$hash = (Get-FileHash $spec.asset.src -Algorithm SHA256).Hash
+$px = [int]("0x" + $hash.Substring(0,8)) % 100
+$py = [int]("0x" + $hash.Substring(8,8)) % 100
+$position = @{ x = $px; y = $py; z = 0 }
+
+Write-WoDLog -EventType "placement_resolved" -Data @{ asset = $spec.asset.id; pos = $position }
+Copy-Item $spec.asset.src "$root\assets\mirror\" -Force
+Write-WoDLog -EventType "placement_committed" -Data @{ asset = $spec.asset.id; pos = $position; mirror = "ok" }
+```
+
+---
+
+### Step 6. Example payload
+```yaml
+# C:\Users\Hunter\Windows-of-Death\payloads\place_asset.yml
+kind: placement
+actor_handle: hunter-dev
+seed_ref: build_seed
+target:
+  namespace: core
+  area: test-lab
+asset:
+  id: door-iron-01
+  src: C:\Users\Hunter\Windows-of-Death\assets\operational\door-iron-01.glb
+rules:
+  collision: fail_on_conflict
+  quotas: enforce
+audit:
+  reason: "User-space placement demo"
+```
+
+---
+
+## 🚦 How to Run Without Admin
+- Open **Windows Terminal** → PowerShell 7 tab.  
+- Run:
+  ```powershell
+  pwsh C:\Users\Hunter\Windows-of-Death\scripts\place_asset.ps1
+  ```
+- Check logs in `C:\Users\Hunter\Windows-of-Death\logs\session-*.jsonl`.
+
+---

@@ -1,0 +1,5 @@
+actor: wolfman-dev
+action: place_asset
+asset: safehouse-kit.v1
+target: core:silent-perimeter
+reason: "AI-Assisted Asset Placement"

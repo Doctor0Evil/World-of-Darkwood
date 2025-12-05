@@ -1,0 +1,30 @@
+@sync: a7b9c3d2-5e6f-4a1b-9c2d-3e4f5a6b7c8d
+@persona: wolfman.dev
+@seed: 45012
+@scope: creature
+
+Quest:
+  - id: Q-LOD-CR-003
+  - goal: Define “Fence-Runner” stealth dog variant with trap awareness.
+
+Stock:
+  - templates:
+      - creature.base.v1
+      - ai.behavior.stealth.v2
+      - spawn.table.v1
+
+Camp:
+  - repo: https://github.com/Doctor0Evil/Windows-of-Death.git
+  - path: /world/creatures/fence-runner
+  - branch: feature/creature-FR
+
+Steps:
+  1. instantiate creature.base.v1 with hp: 120, speed: high, noise: low.
+  2. attach ai.behavior.stealth.v2 with trap-detection radius: 6 tiles.
+  3. set aggro near oil-fire and broken fences; flee on bright lamp.
+  4. add spawn.table.v1: perimeter sectors 2–3, count 2–4, night bias.
+  5. export creature.json; link to map hazards for synergy tests.
+
+Audit:
+  - registry: /ops/audit/creatures/FR/Q-LOD-CR-003.yml
+  - checksum: sha256-creature

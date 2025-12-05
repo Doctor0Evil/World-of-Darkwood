@@ -1,0 +1,6 @@
+; fan.asia/sound/requirements-gather.aln
+defmodule requirement-collector
+  defquery tech-platform type device-profile
+  defsound-list required sounds query: ambient, fx, musical, dynamic
+  format-list supported wav, mp3, ogg
+endmodule

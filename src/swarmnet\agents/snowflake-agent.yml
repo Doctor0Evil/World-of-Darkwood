@@ -1,0 +1,9 @@
+agent_id: snowflake-ai
+type: external
+entrypoint: fetch.py
+capabilities:
+  - orchestration
+  - nanoswarm
+compliance:
+  audit: true
+  attribution: required

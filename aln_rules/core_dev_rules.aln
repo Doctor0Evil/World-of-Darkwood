@@ -1,0 +1,237 @@
+// ALN Playbook: Core Development Rules (Version 1.0)
+playbook "WindowsOfDeath/DevRules"
+
+global {
+  // Compliance Locks (Non-Negotiable)
+  compliance {
+    safety {
+      asset_placement {
+        visibility_threshold: 0.0  // Never show placement process
+        occlusion_required: true   // Only place when occluded
+      }
+      ai_behavior {
+        transparency: "full"       // All decisions logged
+        override_block: true       // No manual bypass
+      }
+    }
+
+  // Core Game Systems
+  systems {
+    character {
+      progression: "narrative"     // No traditional RPG stats
+      animation: "procedural"      // Fluid motion system
+    }
+    world {
+      generation: "procedural"     // AI-assisted terrain
+      discovery: "organic"         // No obvious patterns
+    }
+  }
+}
+
+// 1. Asset Database Initialization
+rule "init_asset_db" {
+  trigger: on_start
+  action {
+    create database {
+      name: "wod_assets"
+      schema: "schemas/wod.v1"    // Includes WASM contracts
+      tables: [
+        "characters",
+        "environments",
+        "mechanics",
+        "narrative"
+      ]
+    }
+
+    // Initial character template
+    insert {
+      table: "characters"
+      data: {
+        id: "wanderer_001"
+        traits: [
+          "stealth_step",
+          "hill_climb",
+          "ledge_balance"
+        ]
+        model: "models/human_base.fbx"
+        ai_profile: "npc_profiles/survivor.aln"
+      }
+    }
+  }
+}
+
+// 2. Procedural Generation Rules
+rule "generate_environment" {
+  trigger: area_enter
+  action {
+    generate {
+      terrain {
+        biome: current_biome
+        noise {
+          octaves: 8
+          persistence: 0.5
+        }
+      }
+      assets {
+        type: "environmental"
+        count: random(15, 30)
+        placement {
+          method: "occlusion_safe"
+          validation: "wasm/contracts/placement.wasm"
+        }
+      }
+    }
+  }
+}
+
+// 3. AI Development Constraints
+rule "ai_dev_guardrails" {
+  trigger: development_cycle
+  action {
+    validate {
+      code {
+        languages: ["python", "ruby", "kotlin"]
+        checks: [
+          "no_hardcoded",
+          "type_safety",
+          "compliance_flags"
+        ]
+      }
+      ml_models {
+        frameworks: ["pytorch", "tensorflow"]
+        restrictions: [
+          "no_unsupervised_generation",
+          "ethics_approved_only"
+        ]
+      }
+    }
+  }
+}
+
+// 4. Virtual Hardware Projection
+rule "vh_projection" {
+  trigger: session_start
+  action {
+    create {
+      virtual_machine {
+        spec: "gaming_v1"
+        resources {
+          gpu: "rtx_4090_equivalent"
+          cpu: "16_core"
+        }
+        interface: "remote_desktop"
+      }
+    }
+  }
+}
+
+// 5. Character Development Pipeline
+rule "character_pipeline" {
+  trigger: character_created
+  action {
+    process {
+      stages: [
+        "concept_art",
+        "rigging",
+        "ai_behavior",
+        "animation_testing"
+      ]
+      requirements: {
+        narrative_approval: true
+        physics_validation: true
+      }
+    }
+  }
+}
+
+// 6. WASM Contract System
+rule "wasm_approval" {
+  trigger: asset_placement
+  action {
+    validate {
+      contract: "wasm/contracts/approval.wasm"
+      inputs: [
+        "asset_id",
+        "position",
+        "context"
+      ]
+      timeout: 250ms
+    }
+  }
+}
+
+// 7. AI Chat Integration
+rule "chat_dev_interface" {
+  trigger: dev_command
+  action {
+    process {
+      input: "natural_language"
+      output: {
+        type: "aln_code"
+        validation: "strict"
+      }
+    }
+  }
+}
+
+// 8. Gameplay Systems
+rule "core_gameplay" {
+  trigger: game_init
+  action {
+    initialize {
+      systems: [
+        "survival",
+        "horror",
+        "combat",
+        "crafting"
+      ]
+      mechanics {
+        survival: {
+          needs: [
+            "hunger",
+            "thirst",
+            "sanity"
+          ]
+        }
+        combat: {
+          style: "action_rpg"
+          restrictions: "no_stats_grind"
+        }
+      }
+    }
+  }
+}
+
+// 9. Procedural Generation Controls
+rule "procedural_limits" {
+  trigger: generation_request
+  action {
+    constrain {
+      parameters {
+        // Prevents obvious patterns
+        randomness {
+          seed: "${session_id}"
+          variance: 0.75
+        }
+        // Ensures logical placement
+        logic {
+          ruleset: "narrative_coherence.aln"
+        }
+      }
+    }
+  }
+}
+
+// 10. Blockchain Integration Layer
+rule "web5_integration" {
+  trigger: transaction
+  action {
+    record {
+      ledger: "game_events"
+      data: {
+        type: "wasm_contract"
+        transparency: "full"
+      }
+    }
+  }
+}

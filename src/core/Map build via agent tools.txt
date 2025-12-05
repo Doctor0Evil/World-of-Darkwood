@@ -1,0 +1,31 @@
+@sync: a7b9c3d2-5e6f-4a1b-9c2d-3e4f5a6b7c8d
+@persona: wolfman.dev
+@seed: 12047
+@scope: map
+
+Quest:
+  - id: Q-LOD-MAP-SPR-AG
+  - goal: Build “Silent Perimeter” ring with breach routes and safehouse using agent tools.
+
+Stock:
+  - tools:
+      - map.grid.v1
+      - navmesh.basic.v2
+      - breach.route.v1
+      - safehouse.kit.v1
+
+Camp:
+  - repo: https://github.com/Doctor0Evil/Windows-of-Death.git
+  - path: /world/maps/silent-perimeter
+  - branch: feature/map-SPR-agents
+
+Steps:
+  1. map.grid.v1 create radius: 48 tiles; sectors: N, SE, W.
+  2. breach.route.v1 carve sector: SE; debris_nodes: 3; hazard_pairing: dog-trap.
+  3. breach.route.v1 carve sector: W; debris_nodes: 2; hazard_pairing: oil-fire.
+  4. safehouse.kit.v1 place sector: N; link navmesh.basic.v2 to inner paths.
+  5. export map.json and map_nav.json; update registry.yml sectors and hazards.
+
+Audit:
+  - registry: /ops/audit/maps/SPR/Q-LOD-MAP-SPR-AG.yml
+  - checksum: sha256-map

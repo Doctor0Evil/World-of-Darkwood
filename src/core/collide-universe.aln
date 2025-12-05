@@ -1,0 +1,17 @@
+(aln.module "universe-collision"
+  :description "Procedurally collide multiple game universes; trigger emergent events, timeline rewrites, and lore"
+  :exports (collide-universes trigger-universal-event register-collision-logic)
+)
+
+(defun collide-universes (universeA universeB &key (event "shebig.bang"))
+  (let* ((merged-lore (merge-lore-data universeA.lore universeB.lore event))
+         (branchable-timelines (concat-timelines universeA.timeline universeB.timeline event))
+         (collision-effects (generate-collision-effects universeA universeB event)))
+    (log-universe-collision universeA universeB event)
+    (apply-collision-effects collision-effects)
+    (trigger-lore-composer merged-lore branchable-timelines))
+)
+
+(defun register-collision-logic (universe logic-fn)
+  (add-to-collision-hooks universe logic-fn)
+)

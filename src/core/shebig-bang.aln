@@ -1,0 +1,9 @@
+(aln.module "shebig-bang"
+  :description "Origin event: triggers new world, timeline, random branch points, and unlocks new mechanics"
+  :exports (trigger-shebig-bang)
+)
+(defun trigger-shebig-bang (&key seed properties)
+  (let ((new-universe (generate-universe-from-seed seed properties)))
+    (log-origin-event new-universe :event "shebig.bang")
+    (start-initial-epoch new-universe)
+    (return new-universe)))

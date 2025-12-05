@@ -1,0 +1,7 @@
+; fan.asia/environment/contamination.aln
+defbranch contamination
+  option biological trigger: cough, surface-filth
+  option radioactive trigger: geiger-ticks, hum
+  propagate by: event, rain, npc-contact
+  rails: no performance drops, frame-throttling
+endbranch

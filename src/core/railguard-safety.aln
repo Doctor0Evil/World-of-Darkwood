@@ -1,0 +1,20 @@
+(aln.module "railguard-safety"
+  :description "Railguards and performance/safety toggles for random and critical systems"
+  :exports (enable-safety-toggles check-frame-drop anomaly-detection)
+)
+
+(defvar *safety-toggles* '(:prevent-db-write-on-event :limit-effect-range :monitor-performance :sandbox-random))
+
+(defun enable-safety-toggles ()
+  (mapc #'activate-toggle *safety-toggles*))
+
+(defun check-frame-drop ()
+  ;; Prevent logic from being executed if last tick was above threshold
+  (< (current-frame-time) *frame-drop-threshold*))
+
+(defun anomaly-detection ()
+  ;; Smart agentic check on unexpected propagation or contamination growth
+  (when (exceeds-expected-variance?)
+    (trigger-log-alert)))
+
+;; Designed for integration with ML-powered workflow monitoring via agentic.ai.

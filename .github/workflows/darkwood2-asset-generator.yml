@@ -1,0 +1,41 @@
+name: Darkwood2 safe asset generator
+
+on:
+  push:
+    paths:
+      - "swarmnet/datastreams/**"
+      - "swarmnet/routes/**"
+      - ".github/workflows/**"
+      - "swarmnet/.gitattributes.magic"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PowerShell
+        uses: actions/setup-powershell@v2
+
+      - name: Safety gate (precision math + ethical compliance)
+        run: pwsh ./swarmnet/scripts/safe_math_gate.ps1
+
+      - name: Run asset generator (ALN)
+        run: pwsh -c 'Write-Host "Invoking ALN generator"; ./swarmnet/aln/datastream_asset_generator.aln'
+
+      - name: Commit generated assets
+        run: |
+          git add assets/ generated/** || true
+          if git diff --cached --quiet; then
+            echo "No asset changes to commit."
+          else
+            git config user.name "swarmnet-ci"
+            git config user.email "swarmnet-ci@users.noreply.github.com"
+            git commit -m "CI: auto-generate assets (safe datastream correction)"
+            git push
+          fi

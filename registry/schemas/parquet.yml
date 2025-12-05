@@ -1,0 +1,16 @@
+# File: registry/schemas/parquet.yml
+datasets:
+  - name: asset_catalog_parquet
+    path: data/parquet/asset_catalog.parquet
+    schema:
+      - { name: asset_id, type: string }
+      - { name: type, type: string }
+      - { name: name, type: string }
+      - { name: version, type: string }
+      - { name: uri, type: string }
+      - { name: checksum, type: string }
+      - { name: author, type: string }
+      - { name: license, type: string }
+      - { name: tags, type: string }
+      - { name: created_at, type: string }
+      - { name: updated_at, type: string }

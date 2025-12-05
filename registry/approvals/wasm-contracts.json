@@ -1,0 +1,33 @@
+{
+  "contracts": [
+    {
+      "id": "wod.asset.place.v1",
+      "wasm_uri": "approvals/place_v1.wasm",
+      "schema": {
+        "action": "place",
+        "requires": ["asset_id", "world_coordinate", "seed", "context"],
+        "context": { "biome": "string", "time_of_day": "string", "visibility_budget_ms": "number" }
+      },
+      "policies": {
+        "provenance_required": true,
+        "checksum_verification": true,
+        "occlusion_mandatory": true,
+        "deferred_realization_ms_max": 250
+      },
+      "transparency": {
+        "human_readable": true,
+        "explain": [
+          "The placement is interpreted under biome constraints.",
+          "Animations and movement envelopes are adapted to capability profiles.",
+          "No user-visible pop-in; client realizes only when occlusion and streaming budgets are satisfied."
+        ]
+      }
+    },
+    {
+      "id": "wod.asset.update.v1",
+      "wasm_uri": "approvals/update_v1.wasm",
+      "schema": { "action": "update", "requires": ["asset_id", "changeset", "reason"] },
+      "policies": { "version_bump_semver": true, "deprecation_window_days": 30 }
+    }
+  ]
+}

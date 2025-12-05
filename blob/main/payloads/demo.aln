@@ -1,0 +1,5 @@
+actor hunter-dev
+action place_asset
+asset door-iron-01
+target core:test-lab
+reason "Demo ALN → Bitshell → Snowflake chain"

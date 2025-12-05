@@ -1,0 +1,13 @@
+# runtime/ALN_BatchAssetGenerator.aln
+module BatchAssetGenerator {
+  version = 1
+  seed = 90001
+  constraints { max_batch = 300; require_quota = true; require_reviewers = 2 }
+  pipeline {
+    input(".aii:spec") -> validate(quota, reviewers, custody)
+    transform(spec, seed) -> emit(".aii:artifacts", count<=max_batch)
+    hash(outputs) -> sha3_512
+    anchor("Bit.Hub ETHSwarm")
+  }
+  compliance { identity_anchor = true; immutable_log = true }
+}

@@ -1,0 +1,154 @@
+# asset-discovery.yml
+[Darkwood2::AssetDiscovery]
+scopes: [
+  "Blockchain nodes and indexer services",
+  "Heuristic clustering and transaction history linking",
+  "Internal entity labeling APIs and onboarding-linked wallet metadata",
+  "Immutable on-chain or BaaS attestations",
+  "RBAC-governed APIs",
+  "AI-powered anomaly and compliance pattern detection"
+]
+
+cryptocurrencies: [
+  "Bitcoin",
+  "Ethereum",
+  "Fetch.ai",
+  "Other relevant cryptocurrencies in the ecosystem"
+]
+
+governance_considerations: {
+  "audit_logs": "Immutable, signed, user/agent attributed",
+  "role_permissions": "Granular, context-monitored, API-enforced"
+}
+
+compliance_status: "Internal-only, full data lineage and privacy controls enabled"
+
+# GitHub Actions Workflows
+name: Setup .NET Core SDK
+on: [push]
+jobs:
+  setup-dotnet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v5.0.0
+        with:
+          dotnet-version: # optional
+          dotnet-quality: # optional
+          global-json-file: # optional
+          source-url: # optional
+          owner: # optional
+
+name: Cache
+on: [push]
+jobs:
+  cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache
+        uses: actions/cache@v4.3.0
+        with:
+          path:
+          key:
+          restore-keys: # optional
+          upload-chunk-size: # optional
+          enableCrossOsArchive: # optional, default is false
+          fail-on-cache-miss: # optional, default is false
+          lookup-only: # optional, default is false
+          save-always: # optional, default is false
+
+name: Armory Continuous Deployment-as-a-Service
+on: [push]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Armory Continuous Deployment-as-a-Service
+        uses: armory/cli-deploy-action@v1.0.0
+        with:
+          path-to-file:
+          applicationName: # optional
+          addContext: # optional
+          clientId:
+          clientSecret:
+          audience: # optional, default is https://api.cloud.armory.io
+          tokenIssuerUrl: # optional, default is https://auth.cloud.armory.io/oauth
+          deployHostUrl: # optional, default is api.cloud.armory.io
+
+name: Setup Java JDK
+on: [push]
+jobs:
+  setup-java:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Java JDK
+        uses: actions/setup-java@v5.0.0
+        with:
+          java-version: # optional
+          java-version-file: # optional
+          distribution:
+          java-package: # optional, default is jdk
+          architecture: # optional
+          jdkFile: # optional
+          check-latest: # optional
+          server-id: # optional, default is github
+          server-username: # optional, default is GITHUB_ACTOR
+          server-password: # optional, default is GITHUB_TOKEN
+          settings-path: # optional
+          overwrite-settings: # optional, default is true
+          gpg-private-key: # optional
+          gpg-passphrase: # optional
+          cache: # optional
+          cache-dependency-path: # optional
+          job-status: # optional, default is ${{ job.status }}
+          token: # optional, default is ${{ github.server_url == 'https://github.com' && github.token || '' }}
+          mvn-toolchain-id: # optional
+          mvn-toolchain-vendor: # optional
+
+name: Run Python Black Code Formatter
+on: [push]
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run python black code formatter
+        uses: DataDog/action-py-black-formatter@v2.5
+        with:
+          additional_args: # optional, default is
+          fail_on_error: # optional, default is true
+          main_branch: # optional, default is main
+          quiet_mode: # optional, default is false
+          print_diff_mode: # optional, default is false
+          check_mode: # optional, default is false
+          only_changed_files: # optional, default is false
+          base_commit: # optional, default is
+
+name: Upload a Build Artifact
+on: [push]
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: # optional, default is artifact
+          path:
+          if-no-files-found: # optional, default is warn
+          retention-days: # optional
+          compression-level: # optional, default is 6
+          overwrite: # optional, default is false
+          include-hidden-files: # optional, default is false
+
+name: First Interaction
+on: [issues, pull_request]
+jobs:
+  first-interaction:
+    runs-on: ubuntu-latest
+    steps:
+      - name: First interaction
+        uses: actions/first-interaction@v1.3.0
+        with:
+          repo-token:
+          issue-message: # optional
+          pr-message: # optional

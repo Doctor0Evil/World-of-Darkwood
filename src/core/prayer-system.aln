@@ -1,0 +1,27 @@
+(aln.module "prayer-skill"
+  :description "Prayer skill with experience and benefits, safe and non-religious"
+  :exports (gain-prayer-xp activate-prayer bonus-effect)
+)
+
+(defvar prayer-xp-table '(0 50 150 300 600 1000 ...))
+
+(defun gain-prayer-xp (player method)
+  (let ((xp (case method
+               (:bury-bones 10)
+               (:light-candle 2)
+               (:meditate 5)
+               (:help-spirit 15)
+               (:laughter-offering 8)
+               (:clean-altar 4)
+               (otherwise 1))))
+    (incf (player-prayer-xp player) xp)
+    (maybe-level-up-prayer player))
+)
+
+(defun activate-prayer (player skill)
+  (when (>= (player-prayer-level player)
+            (required-prayer-level skill))
+    (apply-prayer-effect player skill))
+)
+
+;; Additional methods may be easily added for extensibility.

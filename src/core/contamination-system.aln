@@ -1,0 +1,25 @@
+(aln.module "contamination-system"
+  :description "Expanded contamination trees: bio/parasitic/radioactive"
+  :exports (check-contamination propagate-contamination treat-contamination)
+)
+
+(defun check-contamination (entity type)
+  (case type
+    (:biological (detect-bio-contamination entity))
+    (:parasitic (detect-parasite-contamination entity))
+    (:radioactive (detect-rad-contamination entity))
+    (otherwise nil)))
+
+(defun propagate-contamination (source target type)
+  (when (can-contaminate? source target type)
+    (setf (contamination-level target type)
+          (+ (contamination-level source type)
+             (calculate-propagation-efficiency source target type))))
+)
+
+(defun treat-contamination (entity type method)
+  (ecase type
+    (:biological (apply-bio-treatment entity method))
+    (:parasitic (apply-parasite-treatment entity method))
+    (:radioactive (apply-rad-treatment entity method)))
+)

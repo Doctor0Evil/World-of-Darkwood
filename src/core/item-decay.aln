@@ -1,0 +1,28 @@
+(aln.module "item-decay"
+  :description "Decay, spoilage, and purification system logic"
+  :exports (process-item-decay process-food-spoilage process-water-purify)
+)
+
+(defun process-item-decay (item tick)
+  (if (decay-enabled? item)
+      (let* ((age (+ (item-age item) tick))
+             (decay-rate (item-decay-rate item))
+             (decayed (>= age (item-decay-threshold item))))
+        (when decayed
+          (setf (item-state item) :decayed)))
+      nil)
+)
+
+(defun process-food-spoilage (food tick env)
+  (when (food-can-spoil? food env)
+    (let ((spoil-chance (calculate-spoil-chance food env tick)))
+      (when (> spoil-chance (random 1.0))
+        (setf (food-state food) :spoiled))))
+)
+
+(defun process-water-purify (water method)
+  (case method
+    ((chlorine-tablet boil sealed-bottle clean-source)
+     (setf (water-contamination water) :none))
+    (t (setf (water-contamination water) :uncertain)))
+)

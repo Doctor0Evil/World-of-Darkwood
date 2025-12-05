@@ -1,0 +1,5 @@
+{
+  "sector": "N",
+  "navmesh_links": ["inner_path_1", "inner_path_2"],
+  "assets": ["safehouse_kit.v1"]
+}

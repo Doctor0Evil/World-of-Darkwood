@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Swarmnet: Start Host",
+      "type": "shell",
+      "command": "powershell",
+      "args": ["-File", "swarmnet.magic", "host"],
+      "group": "build"
+    },
+    {
+      "label": "Swarmnet: Ingest Assets",
+      "type": "shell",
+      "command": "powershell",
+      "args": ["-File", "scripts/asset_ingest.magic", "ingest"],
+      "group": "build"
+    },
+    {
+      "label": "Swarmnet: Attach Host",
+      "type": "shell",
+      "command": "powershell",
+      "args": ["-File", "swarmnet.magic", "attach"],
+      "group": "build"
+    }
+  ]
+}

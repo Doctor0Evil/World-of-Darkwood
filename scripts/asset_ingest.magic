@@ -1,0 +1,72 @@
+param(
+  [string]$Action = "ingest",
+  [string]$Seed = "",
+  [string]$RepoRoot = (Get-Location).Path
+)
+
+$ConfigsDir   = Join-Path $RepoRoot "configs"
+$LogsDir      = Join-Path $RepoRoot "logs"
+$ManifestsDir = Join-Path $RepoRoot "manifests"
+$IngestDir    = Join-Path $RepoRoot "contributions"
+$Quarantine   = Join-Path $RepoRoot "quarantine"
+$EventsLog    = Join-Path $LogsDir "asset_events.jsonl"
+$SeedEnvName  = "SWARMNET_SEED"
+$DefaultSeed  = (Get-Date).ToString("yyyyMMdd-HHmmss") + "-WOD"
+
+foreach ($d in @($LogsDir,$ManifestsDir,$IngestDir,$Quarantine)) { if (-not (Test-Path $d)) { New-Item -ItemType Directory -Path $d | Out-Null } }
+if (-not $env:$SeedEnvName) { $env:$SeedEnvName = ($Seed ? $Seed : $DefaultSeed) }
+
+function LogEvent([string]$type, [hashtable]$data) {
+  $rec = @{ ts = (Get-Date).ToString("o"); type = $type; seed = $env:$SeedEnvName; data = $data } | ConvertTo-Json -Compress
+  $rec | Out-File -Append -Encoding utf8 $EventsLog
+}
+
+function HashFile([string]$path) { (Get-FileHash -Algorithm SHA256 -Path $path).Hash }
+
+function IngestDrive([string]$origin, [string]$iteration) {
+  $originLabel = ($origin -replace "[:\\]", "_").Trim("_")
+  $dest = Join-Path $IngestDir $originLabel
+  if (-not (Test-Path $origin)) { LogEvent "drive_missing" @{ origin=$origin; iteration=$iteration }; return }
+
+  if (-not (Test-Path $dest)) { New-Item -ItemType Directory -Path $dest | Out-Null }
+  $manifestPath = Join-Path $ManifestsDir ("{0}_{1}.json" -f $originLabel,$iteration)
+  $manifest = @()
+
+  Get-ChildItem -Path $origin -Recurse -File | ForEach-Object {
+    $src = $_.FullName
+    $rel = $src.Substring($origin.Length).TrimStart('\')
+    $tgt = Join-Path $dest $rel
+    $tgtDir = Split-Path -Parent $tgt
+    if (-not (Test-Path $tgtDir)) { New-Item -ItemType Directory -Path $tgtDir | Out-Null }
+
+    Copy-Item -Path $src -Destination $tgt -Force
+    $hashSrc = HashFile $src
+    $hashTgt = HashFile $tgt
+
+    if ($hashSrc -ne $hashTgt) {
+      $qt = Join-Path $Quarantine ("{0}.{1}" -f $rel.Replace('\','_'),"qtn")
+      Copy-Item -Path $tgt -Destination $qt -Force
+      Remove-Item $tgt -Force
+      LogEvent "checksum_mismatch" @{ origin=$origin; iteration=$iteration; file=$rel; srcHash=$hashSrc; tgtHash=$hashTgt; quarantined=$qt }
+    } else {
+      $manifest += @{ file=$rel; sha256=$hashTgt }
+    }
+  }
+
+  ($manifest | ConvertTo-Json -Depth 5) | Out-File $manifestPath -Encoding utf8
+  LogEvent "ingest_complete" @{ origin=$origin; iteration=$iteration; manifest=$manifestPath; files=$manifest.Count }
+}
+
+switch ($Action) {
+  "ingest" {
+    # From your .ing schedule
+    IngestDrive "Z:\" "batch-001"
+    IngestDrive "P:\" "batch-002"
+    IngestDrive "VIR:\" "batch-003"
+    IngestDrive "C:\" "batch-004"
+    LogEvent "schedule_complete" @{ drives=@("Z:","P:","VIR:","C:"); seed=$env:$SeedEnvName }
+  }
+  default {
+    Write-Host "Usage: powershell -File .\scripts\asset_ingest.magic ingest [-Seed 20250926-1200-WOD]"
+  }
+}

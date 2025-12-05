@@ -1,0 +1,227 @@
+# plotconstructor.yml
+GameForge-AI/Dev-Kits/DW2.plot-constructor.aln
+
+MODULE game.darkwood2.intro.fragmented
+  META: { name: "Darkwood2", version: "0.1a", owner: "did:web:example:darkwood2-team" }
+  RIGHTS_ASSERTION: {
+    parties: ["human", "ai", "cybernetic"],
+    permitted_rights: ["expression", "privacy", "innovation", "sanity"]
+  }
+  ENTITY Player {
+    id: string
+    name: string
+    hp: number
+    max_hp: number
+    sanity: number
+    inventory: []
+  }
+  SCENE FragmentedReality(seed) {
+    player = Player { id:"p-001", name:"Echo", hp:70, max_hp:100, sanity:90, inventory:[{id:"nano-medkit", hp:20}] }
+    world = ENV.DynamicBiome.generator(seed, theme:"glitch_swamp")
+    COMPLIANCE.enforceEqualRights(player, moduleMeta=META)
+    step1:
+      narration("You awaken amidst fractured code and dripping corruption. The air is thick with static and decay.")
+      player.inventory.push({id:"rusted-blade", damage:7})
+      emit("player_awakens", {location:world.entry})
+    step2:
+      spawn = ENCOUNTER.AdaptiveEntity.maybeSpawn(world, seed)
+      if spawn {
+        result = ENCOUNTER.AdaptiveEntity.run(player, world, seed)
+      } else {
+        narration("An eerie quiet hangs — for now.")
+      }
+    step_end:
+      persistState(player, world)
+      anchor("scene:fragmentedreality", owner=META.owner)
+  }
+
+MODULE game.darkwood2.devplan
+  META: { name: "Darkwood2_DevPlan", version: "0.1", owner: "did:web:developer:darkwood2-team" }
+  TASK ElevatorPitch {
+    EXECUTE:
+      return "Darkwood2 is an adaptive survival-horror adventure blending psychological dread and resource scarcity within a dynamic AI-driven world where every decision and session shapes an ever-evolving nightmare of corrupted realities and haunted memories."
+  }
+  TASK CoreGameplayLoops {
+    EXECUTE:
+      loops = [
+        "Exploration and resource scavenging in procedurally generated biomes",
+        "Sanity and health management under constant threat",
+        "Dynamic AI enemy encounters reacting to player strategies",
+        "Crafting and inventory management with risk-reward decisions",
+        "Branching narrative influenced by player choices",
+        "Base defense during night cycles via traps and limited combat"
+      ]
+      return loops
+  }
+  TASK DevMilestonePlan3Months {
+    EXECUTE:
+      milestones = {
+        "Month 1": [
+          "Prototype procedural biome generation",
+          "Implement base player stats: HP, sanity, inventory",
+          "Develop deterministic runtime with seeded RNG",
+          "Create basic AI enemy encounter logic"
+        ],
+        "Month 2": [
+          "Branching narrative framework with persistent player choices",
+          "Sanity system affecting gameplay and visuals",
+          "Inventory and crafting systems prototype",
+          "Basic compliance and audit logging support"
+        ],
+        "Month 3": [
+          "Integrate Web5 swarm API for autonomous content ingestion",
+          "Expand AI behavior with learning and adaptive scares",
+          "Implement multiplayer persistence scaffolding",
+          "Testing & iteration on core loops and stable builds"
+        ]
+      }
+      return milestones
+  }
+  TASK AIAgentRoles {
+    EXECUTE:
+      roles = {
+        "Content Generator": ["Create new game assets, lore, and events via API ingestion"],
+        "QA Auditor": ["Verify deterministic runs, ensure compliance and audit integrity"],
+        "Behavior Trainer": ["Train and update AI enemy behaviors from player data"],
+        "Merge Moderator": ["Score, prioritize, and merge community concepts into builds"],
+        "Session Analyst": ["Analyze player sessions and feed feedback for content evolution"]
+      }
+      permissions = {
+        "ReadLogs": true,
+        "WriteAssets": true,
+        "UpdateBehavior": true,
+        "MergeContent": true,
+        "AccessPlayerData": false
+      }
+      return {roles, permissions}
+  }
+  TASK JSONLAuditSchema {
+    EXECUTE:
+      schema = {
+        "player": {
+          "id": "string",
+          "hp": "integer",
+          "max_hp": "integer",
+          "sanity": "integer",
+          "inventory": "array of strings"
+        },
+        "world": {
+          "seed": "integer",
+          "biome": "string",
+          "noise": "float",
+          "spawn_density": "float"
+        },
+        "encounter": {
+          "spawned": "boolean",
+          "spawn_roll": "float",
+          "threshold": "float",
+          "log": [
+            {
+              "phase": "string",
+              "action": "string",
+              "result": "string or integer",
+              "value": "optional integer or float"
+            }
+          ]
+        },
+        "session_id": "string",
+        "timestamp": "ISO8601 string"
+      }
+      return schema
+  }
+END
+
+[Darkwood2::README_Constructor]
+build_phase: 1/7
+current_focus: New Concept Merge - Cell + Windows-of-Death
+memory_cache: {
+  "core_files": ["log_level_config.json","EpicOnlineServicesConfig.json","eos_steam_config.json","eos_macos_config.json","eos_linux_config.json"],
+  "repo_linked": "Doctor0Evil/GameForge-AI",
+  "goal": "Consolidate survival-horror concept for ongoing development"
+}
+debugging_data: {
+  "merge_sources": ["Cell README", "Windows-of-Death README"],
+  "key_themes": ["AI-driven ecosystem", "psychological + resource horror fusion", "swarmnet immutable logging", "branching procedural narrative"]
+}
+0x_payloads: {
+  "logging_level": "Error only",
+  "platform_configs": "registered",
+  "engine_stack": "Lua + Web5 AI + Epic Online Services"
+}
+game_asset_values: {
+  "readme_sections_drafted": 1,
+  "sections_pending": 6,
+  "current_priority": "Technical foundation + lore expansion"
+}
+
+# GitHub Actions Workflows
+name: Stale Issues and Pull Requests
+on:
+  schedule:
+    - cron: "0 0 * * *"
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close Stale Issues
+        uses: actions/stale@v10.0.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-message: "This issue is stale because it has been open for 60 days with no activity."
+          stale-pr-message: "This pull request is stale because it has been open for 60 days with no activity."
+          days-before-stale: 60
+          days-before-close: 7
+          stale-issue-label: "Stale"
+          stale-pr-label: "Stale"
+
+name: Upload Build Artifact
+on: [push]
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: artifact
+          path: path/to/artifact
+          retention-days: 7
+          compression-level: 6
+
+name: Download Build Artifact
+on: [push]
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v5.0.0
+        with:
+          name: artifact
+          path: path/to/download
+
+name: Setup Java JDK
+on: [push]
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Java JDK
+        uses: actions/setup-java@v5.0.0
+        with:
+          java-version: "11"
+          distribution: "adopt"
+          cache: "maven"
+
+name: First Interaction
+on: [issues, pull_request]
+jobs:
+  first-interaction:
+    runs-on: ubuntu-latest
+    steps:
+      - name: First interaction
+        uses: actions/first-interaction@v1.3.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-message: "Thank you for opening your first issue! We appreciate your contribution."
+          pr-message: "Thank you for opening your first pull request! We appreciate your contribution."

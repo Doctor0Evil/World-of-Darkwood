@@ -1,0 +1,40 @@
+# swarmnet_routes.ing
+version: 1
+sync_id: "WOD-SYNC-PROD-001"
+routes:
+  - lane: "story"
+    ws: "ws://swarmnet.desktop/w13/story"
+    sandbox_profile: "w13-story-sbx"
+  - lane: "biomes"
+    ws: "ws://swarmnet.desktop/w13/biomes"
+    sandbox_profile: "w13-biome-sbx"
+  - lane: "combat"
+    ws: "ws://swarmnet.desktop/w13/combat"
+    sandbox_profile: "w13-combat-sbx"
+  - lane: "assets"
+    ws: "ws://swarmnet.desktop/w13/assets"
+    sandbox_profile: "w13-asset-sbx"
+  - lane: "pipeline"
+    ws: "ws://swarmnet.desktop/w13/pipeline"
+    sandbox_profile: "w13-pipeline-sbx"
+  - lane: "sync"
+    ws: "ws://swarmnet.desktop/w13/sync"
+    sandbox_profile: "w13-sync-sbx"
+  - lane: "qa"
+    ws: "ws://swarmnet.desktop/w13/qa"
+    sandbox_profile: "w13-qa-sbx"
+  - lane: "ai"
+    ws: "ws://swarmnet.desktop/w13/ai"
+    sandbox_profile: "w13-ai-sbx"
+sandbox_policies:
+  default_limits:
+    cpu_pct: 60
+    mem_mb: 4096
+    io_bw_mb_s: 50
+    gpu_pct: 40
+  network:
+    allow_domains: ["swarmnet.desktop", "bithub.ethswarm"]
+    deny_external: true
+compliance:
+  immutable_log: true
+  identity_anchor: true

@@ -1,0 +1,26 @@
+{
+  "scene_ref": "forest_encounter_001",
+  "battle_log": [
+    "0.0s - Dog detects player",
+    "0.5s - Dog moves toward player",
+    "0.6s - Player moves back",
+    "1.3s - Dog bites (12 dmg, player bleeds)",
+    "1.5s - Player quick attacks (15 dmg)",
+    "2.0s - Player dodges",
+    "2.2s - Dog lunges but misses",
+    "2.8s - Player heavy attacks (30 dmg, staggers dog)",
+    "3.0s - Dog is staggered",
+    "4.0s - Player heals (gains 25 HP)"
+  ],
+  "summary": {
+    "player": { "hp": 100, "stamina": 100, "attack": 20 },
+    "wild_dog": { "hp": 60, "attack": 12, "speed": 4.0 },
+    "turns": [
+      "Turn 1: Dog moves closer",
+      "Turn 2: Dog bites (12 dmg) → Player quick attacks (15 dmg)",
+      "Turn 3: Player dodges dog's lunge",
+      "Turn 4: Player heavy attacks (30 dmg) → Dog staggered",
+      "Turn 5: Player heals (25 HP)"
+    ]
+  }
+}

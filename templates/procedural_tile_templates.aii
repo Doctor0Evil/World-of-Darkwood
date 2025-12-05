@@ -1,0 +1,85 @@
+; ==========================================
+; PROCEDURAL TILE SYSTEM TEMPLATE (.aii)
+; Using ALN syntax for safe, controlled generation
+; - Prevent contamination of core files / datastreams
+; - Provide feature-rich game world assets (tiles, patterns)
+; ==========================================
+
+; Define tile properties safely in isolated data blocks
+tile_definitions:
+  ; TileID | EdgeColors (N,E,S,W) | TileType | Props (walkable, interactive)
+  tile_001: "grass"  #edge_colors: "g,g,g,g" #type: "ground" #walkable: 1 #interactive: 0
+  tile_002: "water"  #edge_colors: "w,w,w,w" #type: "liquid" #walkable: 0 #interactive: 0
+  tile_003: "beach"  #edge_colors: "g,w,g,w" #type: "transition" #walkable: 1 #interactive: 0
+  tile_004: "road"   #edge_colors: "r,r,r,r" #type: "path" #walkable: 1 #interactive: 0
+  tile_005: "building" #edge_colors: "b,b,b,b" #type: "structure" #walkable: 0 #interactive: 1
+
+; Safety principle: Tile edge colors must match with neighbors for validity
+; Function to validate if adjacent tiles edges match (safe comparison)
+fn validate_tile_fit(tileA, tileB, direction):
+  ; direction = N, E, S, W -> check edge colors accordingly
+  switch(direction)
+    case 'N': return tileA.edges.N == tileB.edges.S
+    case 'E': return tileA.edges.E == tileB.edges.W
+    case 'S': return tileA.edges.S == tileB.edges.N
+    case 'W': return tileA.edges.W == tileB.edges.E
+  end
+  return 0
+
+; Grid initialization - isolated from core engine structures
+init_grid(width, height):
+  grid = array of size width * height initialized to null
+  return grid
+
+; Safe controlled tile placement in grid
+fn place_tile(grid, x, y, tile):
+  ; Check boundaries
+  if x < 0 or y < 0 or x >= grid.width or y >= grid.height
+    return "Out of bounds"
+
+  ; Validate neighbors on each side
+  if not validate_tile_fit(tile, grid[x, y-1], 'N')
+    return "Invalid fit North"
+  if not validate_tile_fit(tile, grid[x+1, y], 'E')
+    return "Invalid fit East"
+  if not validate_tile_fit(tile, grid[x, y+1], 'S')
+    return "Invalid fit South"
+  if not validate_tile_fit(tile, grid[x-1, y], 'W')
+    return "Invalid fit West"
+
+  ; Place tile safely
+  grid[x, y] = tile
+  return "Placed"
+
+; Procedural tile generator (example: random tile fitting rules)
+fn generate_tile(x, y, grid):
+  allowed_tiles = []
+  for each tile in tile_definitions:
+    can_place = true
+    ; check neighbors for fit
+    neighbors = get_neighbors(grid, x, y)
+    for each neighbor, dir in neighbors:
+      if !validate_tile_fit(tile, neighbor, dir):
+        can_place = false
+    if can_place:
+        allowed_tiles.append(tile)
+  end
+
+  ; Choose random from allowed tiles or fallback to default safe tile
+  if allowed_tiles.length > 0:
+    return random_choice(allowed_tiles)
+  else:
+    return tile_definitions["tile_001"]  ; default grass
+
+; Generate entire map
+generate_map(width, height):
+  grid = init_grid(width, height)
+  for y in 0 to height-1:
+    for x in 0 to width-1:
+      tile = generate_tile(x, y, grid)
+      place_tile(grid, x, y, tile)
+  return grid
+
+; ==========================================
+; End of template - add extensions for game-specific rules safely
+; ==========================================

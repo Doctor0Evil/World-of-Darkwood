@@ -1,0 +1,13 @@
+{
+  "name": "Local Swarmnet Build",
+  "steps": [
+    "git_sync",
+    "build_wasm",
+    "generate_assets",
+    "audit"
+  ],
+  "policies": {
+    "require_actor": true,
+    "log_sink": "logs/actions/local_runner.log"
+  }
+}

@@ -1,0 +1,18 @@
+run "db_init" {
+  steps: [
+    {
+      action: "create_db"
+      params: {
+        path: "data/wod_assets.db",
+        schema: "schemas/wod_v1.sql"
+      }
+    },
+    {
+      action: "load_base_assets"
+      params: {
+        file: "registry/base_assets.yml",
+        validate: true
+      }
+    }
+  ]
+}

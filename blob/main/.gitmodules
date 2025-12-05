@@ -1,0 +1,6 @@
+[submodule "src/aln-parser"]
+    path = src/aln-parser
+    url = https://github.com/Doctor0Evil/ALN-Programming-Language.git
+[submodule "src/swarmnet"]
+    path = src/swarmnet
+    url = https://github.com/Doctor0Evil/swarmnet.git

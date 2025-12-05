@@ -1,0 +1,43 @@
+{
+  "configs": [
+    { "name": "swarmnet-combat-and-delivery.ing", "sha256": "<fill-after-commit>" },
+    { "name": "merchantSystem.ing", "sha256": "<fill-after-commit>" },
+    { "name": "directorAI.ing", "sha256": "<fill-after-commit>" },
+    { "name": "virtualDesktop.ing", "sha256": "<fill-after-commit>" },
+    { "name": "operators.ing", "sha256": "<fill-after-commit>" }
+  ],
+  "assets": [
+    { "origin": "Z:\\", "iteration": "batch-001", "sha256_manifest": "manifests\\Z_batch-001.json" },
+    { "origin": "P:\\", "iteration": "batch-002", "sha256_manifest": "manifests\\P_batch-002.json" },
+    { "origin": "VIR:\\", "iteration": "batch-003", "sha256_manifest": "manifests\\VIR_batch-003.json" },
+    { "origin": "C:\\", "iteration": "batch-004", "sha256_manifest": "manifests\\C_batch-004.json" }
+  ],
+  "hmac": "<optional_hex_hmac_over_configs_json>",
+  "compliance": {
+    "on": {
+      "push": { "branches": ["main"] },
+      "pull_request": {}
+    },
+    "jobs": {
+      "validate": {
+        "runs-on": "windows-latest",
+        "steps": [
+          {
+            "name": "Checkout",
+            "uses": "actions/checkout@v4"
+          },
+          {
+            "name": "Verify credits block in README",
+            "shell": "pwsh",
+            "run": "$readme = Get-Content README.md -Raw\n$required = @(\n  \"Creators and Permanent Credits\",\n  \"Perplexity.labs\",\n  \"Jacob Scott Farmer\",\n  \"mistral (production integration)\"\n)\nforeach ($r in $required) {\n  if ($readme -notmatch [Regex]::Escape($r)) {\n    Write-Error \"Missing credit token: $r\"\n  }\n}"
+          },
+          {
+            "name": "Hash configs and compare integrity.json",
+            "shell": "pwsh",
+            "run": "$manifest = Get-Content \"configs/integrity.json\" -Raw | ConvertFrom-Json\n$errors = 0\nforeach ($c in $manifest.configs) {\n  $path = Join-Path \"configs\" $c.name\n  if (-not (Test-Path $path)) { Write-Error \"Missing config $($c.name)\"; $errors++ ; continue }\n  $hash = (Get-FileHash -Algorithm SHA256 -Path $path).Hash.ToLower()\n  if ($c.sha256 -and $c.sha256.ToLower() -ne $hash) {\n    Write-Error \"Hash mismatch for $($c.name): $($c.sha256) != $hash\"\n    $errors++\n  }\n}\nif ($errors -gt 0) { exit 1 }\nWrite-Host \"Integrity OK\""
+          }
+        ]
+      }
+    }
+  }
+}

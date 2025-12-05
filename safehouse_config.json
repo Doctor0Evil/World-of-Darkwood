@@ -1,0 +1,6 @@
+{
+  "sector": "N",
+  "navmesh_links": ["inner_path_1", "inner_path_2"],
+  "assets": ["safehouse_kit.v1"],
+  "snowflake_query": "SELECT * FROM GAME_MAPS.NAVMESH_LATEST"
+}

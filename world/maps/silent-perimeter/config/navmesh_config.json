@@ -1,0 +1,5 @@
+{
+  "version": "navmesh.basic.v2",
+  "cell_size": 0.5,
+  "walkable_slope": 45
+}

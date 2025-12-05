@@ -1,0 +1,7 @@
+; fan.asia/sound/ambient.aln
+defmodule ambient-soundscape
+  defambient cavewhispers loop randomwhisper, echo
+  defambient futurehum dynamicVolume intensity cityzone
+  defambient distantEchoes locationbased fade shiftDirection
+  feedback to player: eventMood "unease"
+endmodule

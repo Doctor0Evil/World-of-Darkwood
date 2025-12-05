@@ -1,0 +1,30 @@
+@sync: a7b9c3d2-5e6f-4a1b-9c2d-3e4f5a6b7c8d
+@persona: wolfman.dev
+@seed: 11237
+@scope: map
+
+Quest:
+  - id: Q-LOD-MAP-002
+  - goal: Generate “Silent Perimeter” ring with two breach routes and one safehouse.
+
+Stock:
+  - templates:
+      - ring.map.v1
+      - breach.route.v1
+      - safehouse.kit.v1
+
+Camp:
+  - repo: https://github.com/Doctor0Evil/Windows-of-Death.git
+  - path: /world/maps/silent-perimeter
+  - branch: feature/map-SPR
+
+Steps:
+  1. build ring.map.v1 at radius 48 tiles; tag sectors N, SE, W.
+  2. carve breach.route.v1 through SE sector with debris nodes.
+  3. add secondary breach in W sector with trap pairing.
+  4. drop safehouse.kit.v1 in N sector; wire navmesh to inner paths.
+  5. export map.json; update registry.yml with sectors and hazards.
+
+Audit:
+  - registry: /ops/audit/maps/SPR/Q-LOD-MAP-002.yml
+  - checksum: sha256-map

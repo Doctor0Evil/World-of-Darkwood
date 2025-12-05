@@ -1,0 +1,19 @@
+# assets/asset_manifest.aii
+version: 1
+sync_id: "WOD-SYNC-PROD-001"
+request_id: "<uuid>"
+initiator_handle: "c-handle2"
+ipv10: "ipv10://vhs:1:2:4:3:5:0002"
+spec:
+  asset_type: "sprite"
+  style: "glitch_swamp"
+  count: 250
+  seed: 90001
+outputs:
+  expected_hash: "<sha3_512>"
+  delivery_lane: "assets"
+reviewers: ["c-handle7","c-handle5"]
+compliance:
+  immutable_log: true
+  identity_anchor: true
+  kernel_persistence: "WindowsOfDeath"

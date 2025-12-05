@@ -1,0 +1,52 @@
+# minimal-ci-gate.yaml
+
+name: Swarmnet Admin Control CI Gate
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  validate-configs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Validate .ing files
+        run: |
+          for file in $(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep '\.ing$'); do
+            if ! grep -q "mode=enforced" "$file"; then
+              echo "ERROR: $file missing required mode=enforced flag" >&2
+              exit 1
+            fi
+            if ! grep -q "ETHSwarm" "$file"; then
+              echo "ERROR: $file missing ETHSwarm flag" >&2
+              exit 1
+            fi
+          done
+
+      - name: Validate admin configs .aii
+        run: |
+          for file in $(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep '\.aii$'); do
+            if ! grep -q "did:web5:admin" "$file"; then
+              echo "ERROR: $file missing admin DID" >&2
+              exit 1
+            fi
+            if ! grep -q "copy_protection=WindowsOfDeath" "$file"; then
+              echo "ERROR: $file missing copy protection WindowsOfDeath" >&2
+              exit 1
+            fi
+          done
+
+      - name: Validate deterministic seeds in asset manifests
+        run: |
+          if ! grep -q "deterministic_seed" "assets/asset_manifest.aii"; then
+            echo "ERROR: Missing deterministic_seed in assets/asset_manifest.aii" >&2
+            exit 1
+          fi
+
+      - name: Success message
+        run: echo "Swarmnet admin control config validation passed."

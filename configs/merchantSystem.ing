@@ -1,0 +1,41 @@
+{
+  "windows-of-death-merchant-system": {
+    "description": "Merchant NPC transaction and barter logic for corrupted OS economy within Windows of Death.",
+    "execution_policy": {
+      "runtime": "alan-code.toolz.v1.0",
+      "scope": "merchant-system",
+      "framework": "web5-npc-logic-trade",
+      "copy_protection": "WindowsOfDeath-kernel-persistence",
+      "session": {
+        "sync_id": "a7b9c3d2-5e6f-4a1b-9c2d-3e4f5a6b7c8d",
+        "deterministic_seed": 77777
+      }
+    },
+    "trading_functions": [
+      {
+        "id": "buy_fragment",
+        "description": "Player purchases recovered code fragments using system credits."
+      },
+      {
+        "id": "sell_resource",
+        "description": "Player sells unused power cells, system patches, or health datapackets for binary credits."
+      },
+      {
+        "id": "npc_special",
+        "description": "Secret barter for rare memory anomalies, available only on major corruption events."
+      }
+    ],
+    "assets": [
+      {
+        "asset_id": "merchant-aii-007",
+        "type": "merchant-system",
+        "format": ".aii",
+        "integrity_hash": "44cf3a90a82b3ce21dd9b734ba450ad3e400a88b2cfa81aa4a2ec0bd4ba3eeec"
+      }
+    ],
+    "logging": {
+      "immutable_record": true,
+      "ledger_endpoint": "/api/v1/merchant/logs"
+    }
+  }
+}

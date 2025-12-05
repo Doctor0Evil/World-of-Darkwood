@@ -1,0 +1,7 @@
+; fan.asia/sound/score.aln
+defmodule horror-score
+  defmusic theme-darkwood2 instruments synth, tape, violin
+  defmusic tensionbuild slow-rhythm, discordant-harmonies
+  trigger on event: playerFear > 70
+  endScore
+endmodule

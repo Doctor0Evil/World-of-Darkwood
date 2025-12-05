@@ -1,0 +1,24 @@
+# automation/ChatOps_Governance.aln
+module ChatOpsGovernance {
+  version = 1
+  seed = 70002
+
+  quotas {
+    "story"   = { max_requests_per_hour = 60; reviewers_min = 2 }
+    "biomes"  = { max_requests_per_hour = 60; reviewers_min = 2 }
+    "combat"  = { max_requests_per_hour = 45; reviewers_min = 2 }
+    "assets"  = { max_requests_per_hour = 30; reviewers_min = 2; batch_max = 300 }
+    "pipeline"= { max_requests_per_hour = 24; reviewers_min = 2 }
+    "sync"    = { max_requests_per_hour = 24; reviewers_min = 2 }
+    "qa"      = { max_requests_per_hour = 36; reviewers_min = 2 }
+    "ai"      = { max_requests_per_hour = 36; reviewers_min = 2 }
+  }
+
+  escalation {
+    on_breach      = "containment_protocol"
+    on_anomaly     = "investigation_protocol"
+    notify_channel = "swarmnet.desktop/w13/pipeline"
+  }
+
+  compliance { identity_anchor = true; immutable_log = true }
+}

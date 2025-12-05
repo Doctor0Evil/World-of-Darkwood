@@ -1,0 +1,13 @@
+(defun resolve-bitlink (s)
+  (if (and s (string-prefix-p "bitlink://" s))
+      (subseq s (length "bitlink://"))
+      s))
+
+(defun call-chat-native (context prompt)
+  (let* ((payload (with-output-to-string (out)
+                    (format out "{\"context\":\"~a\",\"input\":\"~a\"}" (resolve-bitlink context) (resolve-bitlink prompt))))
+         (pfile "/tmp/chat.payload.json")
+         (rfile "/tmp/chat.reply.json"))
+    (with-open-file (f pfile :direction :output :if-exists :supersede) (write-string payload f))
+    (uiop:run-program (list "dotnet" "run" "--project" "src/ChatAdapter" "--" "--input" pfile "--output" rfile))
+    (with-open-file (rf rfile) (let ((txt (read-line rf nil ""))) txt)))

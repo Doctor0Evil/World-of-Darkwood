@@ -1,0 +1,32 @@
+@sync: a7b9c3d2-5e6f-4a1b-9c2d-3e4f5a6b7c8d
+@persona: wolfman.dev
+@seed: 90001
+@scope: system
+
+Quest:
+  - id: Q-LOD-SYS-AGENTS-INIT
+  - goal: Initialize Wolfman with snowflake-style agent orchestration and protocols.
+
+Stock:
+  - protocols:
+      - agent.router.v1
+      - agent.contracts.v1
+      - error.envelope.v1
+  - policies:
+      - require_sync_seed_headers: true
+      - approvals_required: map_lead, gameplay_lead
+
+Camp:
+  - repo: https://github.com/Doctor0Evil/Windows-of-Death.git
+  - path: /persona/wolfman.dev
+  - branch: meta/agents-init
+
+Steps:
+  1. declare protocol contracts agent.contracts.v1 with required headers and audit schema.
+  2. register agent.router.v1 routes for scopes: system, ops, map, level, creature, object.
+  3. enable error.envelope.v1 with step-index and reroute suggestions preserving @seed.
+  4. write protocol-config.yml and link to /ops/audit/policies/agents.yml.
+
+Audit:
+  - registry: /ops/audit/system/AGENTS/Q-LOD-SYS-AGENTS-INIT.yml
+  - checksum: sha256-protocols

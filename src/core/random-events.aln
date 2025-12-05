@@ -1,0 +1,29 @@
+(aln.module "random-creative-events"
+  :description "Handles spontaneous, safe, complex random occurrences"
+  :exports (trigger-random-event random-event-pool)
+)
+
+(defvar *random-event-pool* '(
+  ;; Example events
+  (surprise-reward :chance 0.02 :effect reward-effect)
+  (hidden-path-unlocked :chance 0.005 :effect unlock-effect)
+  (strange-audience :chance 0.001 :effect laughter-effect)
+  (item-turns-to-gold :chance 0.001 :effect goldify-item)
+))
+
+(defun trigger-random-event (context)
+  (let ((event (weighted-random-pick *random-event-pool*)))
+    (when event
+      (when (railguard-allow-random-event event context)
+        (apply-event-effect event context))))
+)
+
+(defun railguard-allow-random-event (event context)
+  ;; Ensures no dangerous states or exposures
+  (and (not (affects-database-integrity? event))
+       (not (exposes-metadata? event))
+       (player-in-safe-state? context)
+  ))
+
+;; Utility function, effect-definitions, and reward logic follow...
+)

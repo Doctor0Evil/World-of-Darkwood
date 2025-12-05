@@ -1,0 +1,6 @@
+export:
+  files:
+    - "map.json"
+    - "map_nav.json"
+  registry_path: "/ops/audit/maps/SPR/registry.yml"
+  checksum: "sha256-map"

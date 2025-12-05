@@ -1,0 +1,42 @@
+# configs/swarmnet_routes.ing
+version: 1
+sync_id: "WOD-SYNC-PROD-001"
+routes:
+  - lane: "story"
+    ws: "ws://swarmnet.desktop/w13/story"
+    ipv10: "ipv10://vhs:1:1:1:2:1:0001"
+    sandbox_profile: "w13-story-sbx"
+  - lane: "biomes"
+    ws: "ws://swarmnet.desktop/w13/biomes"
+    ipv10: "ipv10://vhs:1:4:2:2:3:0004"
+    sandbox_profile: "w13-biome-sbx"
+  - lane: "combat"
+    ws: "ws://swarmnet.desktop/w13/combat"
+    ipv10: "ipv10://vhs:1:3:3:2:2:0003"
+    sandbox_profile: "w13-combat-sbx"
+  - lane: "assets"
+    ws: "ws://swarmnet.desktop/w13/assets"
+    ipv10: "ipv10://vhs:1:2:4:3:5:0002"
+    sandbox_profile: "w13-asset-sbx"
+  - lane: "pipeline"
+    ws: "ws://swarmnet.desktop/w13/pipeline"
+    ipv10: "ipv10://vhs:1:5:5:3:5:0005"
+    sandbox_profile: "w13-pipeline-sbx"
+  - lane: "sync"
+    ws: "ws://swarmnet.desktop/w13/sync"
+    ipv10: "ipv10://vhs:1:6:8:1:6:0006"
+    sandbox_profile: "w13-sync-sbx"
+  - lane: "qa"
+    ws: "ws://swarmnet.desktop/w13/qa"
+    ipv10: "ipv10://vhs:1:7:7:2:7:0007"
+    sandbox_profile: "w13-qa-sbx"
+  - lane: "ai"
+    ws: "ws://swarmnet.desktop/w13/ai"
+    ipv10: "ipv10://vhs:1:8:6:2:8:0008"
+    sandbox_profile: "w13-ai-sbx"
+security:
+  permitted_domains: ["swarmnet.desktop","bithub.ethswarm"]
+  encryption: "AES-256-GCM_QuantumResistant"
+compliance:
+  immutable_log: true
+  identity_anchor: true

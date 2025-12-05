@@ -1,0 +1,23 @@
+version: 1
+registry_id: wod-user
+seeds:
+  build_seed: 1337
+  session_seed_strategy: monotonic-increment
+namespaces:
+  - name: core
+    quota:
+      placements_per_session: 50
+      max_concurrent_connectors: 5
+connectors:
+  - id: aln-parser
+    type: interpreter
+    script: ./interpreters/narrative.ps1
+    audit: true
+  - id: swarmnet-bitshell
+    type: interpreter
+    script: ./src/swarmnet/bitshell/bitshell-functions.ps1
+    audit: true
+  - id: snowflake-agent
+    type: agent
+    config: ./agents/snowflake-agent.yml
+    audit: true

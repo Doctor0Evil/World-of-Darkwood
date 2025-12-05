@@ -1,0 +1,134 @@
+{
+"agent_id": "mistral-aln-darkwood2-gamedev-agent-2025",
+"version": "1.0.0",
+"description": "Mistral AI Agent for Darkwood2 Game Development on Swarmnet Desktop using ALN",
+"security": {
+"encryption": "AES-256-GCM_QuantumResistant",
+"validation": "SHA3-512_NANO_Enhanced"
+},
+"connectors": {
+"swarmnet": {
+"protocol": "ipv10",
+"address": "ipv10://vhs:1:2:4:3:5:0002",
+"auth": {
+"type": "quantum_key",
+"token": "${{ secrets.SWARMNET_TOKEN }}"
+}
+},
+"asset_server": {
+"protocol": "websocket+ssl",
+"url": "wss://assets.aln-gamedev.com/v1",
+"auth": {
+"type": "bearer",
+"token": "${{ secrets.ASSET_SERVER_TOKEN }}"
+}
+}
+},
+"workflow": {
+"phases": [
+{
+"name": "asset_discovery_and_generation",
+"description": "Scan assets folder, generate ALN .magic and .aii files, audit and upload generated assets sequentially across sessions and platforms",
+"actions": [
+{
+"type": "scan",
+"target": "./assets",
+"output": "asset_manifest.aii",
+"format": "aii"
+},
+{
+"type": "execute_aln",
+"script_content": "# Datastream Asset Generator (Safe Mode)\nBEGIN_PIPELINE:\n LOAD "swarmnet/datastreams/.ing" AS STREAMS\n FOR EACH STREAM IN STREAMS:\n VALIDATE STREAM "p_contact == 0 && risk <= 0.05 && audit_conf >= 0.99 && reversibility >= 0.995"\n GENERATE ASSETS SAFE USING STREAM INTO "assets/generated/{STREAM.name}/"\n AUDIT LOG "generated-assets" WITH STREAM.METADATA\nEND_PIPELINE\n",
+"output_files": [
+"swarmnet/aln/datastream_asset_generator.aln",
+"assets/generated/.magic",
+"assets/generated/*.aii"
+]
+},
+{
+"type": "upload_assets",
+"source": "assets/generated/",
+"target": "asset_server",
+"retry_policy": "exponential_backoff",
+"concurrency": 2
+}
+]
+},
+{
+"name": "network_synchronization",
+"description": "Ensure network readiness and synchronize deployment and asset state across all connected platforms",
+"actions": [
+{
+"type": "configure_protocols",
+"protocols": ["TCP/IP", "UDP", "WebSocket", "IPv10"],
+"validation": "precision_math_compliance"
+},
+{
+"type": "test_connection",
+"target": "swarmnet.desktop",
+"checks": ["latency", "bandwidth", "packet_loss"]
+}
+]
+},
+{
+"name": "wasm_build_and_deploy",
+"description": "Dynamically rewrite, validate safety, and deploy Wasm modules with rollback support",
+"actions": [
+{
+"type": "rewrite",
+"method": "dynamic_rewrite_v1",
+"safety_checks": ["precision_math", "memory_bounds", "contract_validity"]
+},
+{
+"type": "deploy",
+"target": "swarmnet",
+"failsafe": true,
+"rollback": {
+"on_failure": "restore_previous_version"
+}
+}
+]
+},
+{
+"name": "biosafe_protocol_activation",
+"description": "Activate biosafety protocols for secure ecosystem health",
+"actions": [
+{
+"type": "activate_protocol",
+"code": "!biosafe+",
+"scope": "all_entities",
+"verification": {
+"requirements": ["pathogen_filtering", "immune_boost", "disease_resistance"],
+"compliance": ["WHO_Pandemic_Treaty_2025"]
+}
+}
+]
+}
+]
+},
+"fallbacks": {
+"asset_delivery": ["swarmnet", "tor_network", "i2p"],
+"data_validation": ["SHA3-512", "BLAKE3", "quantum_hash"],
+"validation_threshold": 3
+},
+"monitoring": {
+"metrics": ["asset_integrity", "network_latency", "wasm_execution", "biosafe_status"],
+"alerts": {
+"channels": ["loki", "prometheus", "grafana"],
+"thresholds": {
+"critical": 0.999,
+"warning": 0.995
+}
+}
+},
+"attribution": {
+"author": "Jacob Scott Corey",
+"pgp_key": "brainpoolP256r1/B0885...",
+"license": "ALN-GameDev-2025",
+"compliance_standards": [
+"GDPR", "HIPAA", "SOC2", "ISO27001",
+"NIST_CSF", "PCI-DSS", "FDA_21_CFR_1143.5",
+"EU_AI_Act_2024", "WHO_Pandemic_Treaty_2025"
+]
+}
+}

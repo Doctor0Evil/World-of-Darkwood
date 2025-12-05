@@ -1,0 +1,116 @@
+# ops/configs/swarmnet_build.ing
+# Swarmnet Desktop Application Build Configuration
+# Combines GitHub Actions workflow with local runner conventions
+
+name: "Swarmnet Desktop Build Pipeline"
+version: "1.0"
+description: "Progressive workflow for building Windows-of-Death swarmnet application"
+
+global:
+  app_name: "WindowsOfDeath"
+  dotnet_version: "6.0"
+  wasm_toolchain: "wasm32-unknown-unknown"
+  build_root: "."
+  output_dir: "dist"
+
+stages:
+  - name: "source_sync"
+    type: "git"
+    config:
+      repo: "origin"
+      branch: "main"
+      depth: 1
+      submodules: true
+
+  - name: "dotnet_restore"
+    type: "dotnet"
+    config:
+      command: "restore"
+      project: "src/SwarmnetApp/SwarmnetApp.csproj"
+
+  - name: "wasm_contracts"
+    type: "rust"
+    config:
+      contracts:
+        - "wasm/contracts/placement.wasm"
+        - "wasm/contracts/approval.wasm"
+      toolchain: "stable"
+      target: "wasm32-unknown-unknown"
+
+  - name: "dotnet_build"
+    type: "dotnet"
+    config:
+      command: "build"
+      configuration: "Release"
+      target: "src/SwarmnetApp/SwarmnetApp.csproj"
+
+  - name: "dotnet_publish"
+    type: "dotnet"
+    config:
+      command: "publish"
+      configuration: "Release"
+      output: "${output_dir}"
+      self_contained: true
+      runtime: "win-x64"
+
+  - name: "aln_assets"
+    type: "aln"
+    config:
+      generator: "generate_assets"
+      input: "registry/assets.yml"
+      output: "data/ledger/placements.ndjson"
+      seed: "session:${timestamp}"
+
+  - name: "package"
+    type: "archive"
+    config:
+      format: "zip"
+      source: "${output_dir}"
+      destination: "dist/SwarmnetApp-${version}.zip"
+
+  - name: "audit"
+    type: "compliance"
+    config:
+      policies:
+        - "wasm_validation"
+        - "asset_occlusion"
+        - "streaming_budgets"
+      log_file: "logs/build_audit.log"
+
+  - name: "deploy"
+    type: "local"
+    config:
+      target: "C:/Program Files/WindowsOfDeath"
+      create_shortcut: true
+      desktop_icon: true
+
+  - name: "github_sync"
+    type: "git"
+    config:
+      commit_message: "Automated build artifacts update"
+      push_remote: "origin"
+      push_branch: "build-artifacts"
+      include:
+        - "dist/"
+        - "logs/"
+      exclude:
+        - "*.tmp"
+
+policies:
+  security:
+    code_signing: true
+    wasm_validation: true
+    asset_occlusion: true
+  performance:
+    max_realizations_per_500ms: 3
+    max_animation_blends_per_500ms: 5
+  logging:
+    level: "verbose"
+    sinks:
+      - "console"
+      - "file:logs/build.log"
+
+environment:
+  AZURE_CONNECTION: "optional"
+  AZURE_WEBAPP_NAME: "windows-of-death"
+  AZURE_PUBLISH_PROFILE: "optional"

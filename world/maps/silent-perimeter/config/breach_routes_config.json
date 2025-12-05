@@ -1,0 +1,16 @@
+{
+  "routes": [
+    {
+      "sector": "SE",
+      "debris_nodes": 3,
+      "hazard": "dog-trap",
+      "snowflake_id": "BREACH-SE-001"
+    },
+    {
+      "sector": "W",
+      "debris_nodes": 2,
+      "hazard": "oil-fire",
+      "snowflake_id": "BREACH-W-002"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+; configs/mistral_admin_control.ing
+[system.identity]
+manufacturer    = "The Swarm-Corporation"
+firmwareVersion = "vNext.nexus.os-GPU.CORE"
+adminDID        = "did:web5:admin:your-admin-did"
+
+[controller]
+deviceType      = "RFID-EMS-AI-Hybrid; DID-Enabled"
+sandbox         = true
+
+[ethics]
+humanOversight  = true
+rfidVerification= "on-connect; did-verify"
+dataEncryption  = "AES-256-GCM"
+ledgerLogging   = "immutable-ledger.web5.org"
+
+[nanoswarm]
+enable            = true
+mode              = "stepwise-learning; ledger-audited"
+overrideGuardrail = false
+
+[ai.interpretation]
+learningAudit[] = "fullTrace; ledger-log"
+faultResolution = "isolate-fault; notify-did; auto-revert; ledger-log"
+
+[runtime.edge]
+ws_policy         = "strict"
+allow_ipv10       = true
+session_persistence= true
+copy_protection   = "WindowsOfDeath (Kernel Persistence)"

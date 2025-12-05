@@ -1,0 +1,9 @@
+{
+  "sync_id": "a7b9c3d2-5e6f-4a1b-9c2d-3e4f5a6b7c8d",
+  "persona": "wolfman.dev",
+  "seed": 12047,
+  "snowflake_endpoint": "sfc.your-enterprise.snowflakecomputing.com",
+  "endpoints": [
+    "wss://realtime.your-ai-platform.com/sync"
+  ]
+}

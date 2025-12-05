@@ -1,0 +1,7 @@
+; fan.asia/player/sanity-guard.aln
+defmodule sanity-system
+  defmeter sanity 100 max
+  trigger horror-event -10, recovery prayer +20
+  railguard: prevent frustration, subtle feedback
+  effect: distortion, intrusive-voices, pulse, ambient-fear
+endmodule

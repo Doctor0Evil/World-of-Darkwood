@@ -1,0 +1,17 @@
+{
+  "runner": "bitshell.large",
+  "resources": {
+    "cpu": "16-core",
+    "ram": "32GB",
+    "disk": "1TB-ssd"
+  },
+  "policies": {
+    "access": ["maintainers", "allies"],
+    "audit": true
+  },
+  "steps": [
+    "git_sync",
+    "build_wasm",
+    "generate_assets",
+    "deploy_preview"
+  ]

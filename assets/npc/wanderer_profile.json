@@ -1,0 +1,13 @@
+{
+  "archetype": "Wanderer",
+  "vocation": "Wayfinder",
+  "capabilities": {
+    "movement": ["stealth_step", "hill_climb", "ledge_balance"],
+    "interaction": ["campcraft", "trail_mark", "bind_wound"],
+    "perception": ["night_listen", "scent_track", "horizon_scan"]
+  },
+  "affinities": ["woodcraft", "lore_binding", "pactkeeping"],
+  "narrative_flags": { "oath_stone": true, "scar_silent": true },
+  "skill_web": ["quiet_fire", "wind_read", "line_cast"],
+  "reputation": { "Wardens": "trusted", "Tidebound": "unknown" }
+}

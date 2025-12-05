@@ -1,0 +1,23 @@
+---
+
+### 🖼️ 1. 16x16 Pixel Art Sprite: Post-Apocalyptic Survivor
+
+```gdscript
+# File: res://sprites/survivor_16x16.png
+# Generated via ALN AI Code Gen (Post-Apocalyptic RPG Theme)
+
+# Pixel art description for 16x16 sprite:
+# - Gas mask (yellow filter, cracked lens)
+# - Tattered brown jacket with patch on left shoulder
+# - Worn blue pants with torn knee
+# - Brown boots with mud splatters
+# - Backpack with water bottle visible
+# - One hand holding a makeshift weapon (rusty pipe)
+# - Hair visible through mask gaps (dirty blonde)
+# - Color palette: earth tones (browns, greens, yellows)
+
+# Godot sprite usage:
+var survivor = Sprite2D.new()
+survivor.texture = load("res://sprites/survivor_16x16.png")
+survivor.position = Vector2(100, 100)
+add_child(survivor)

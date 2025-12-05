@@ -1,0 +1,10 @@
+run "gen_controller" {
+  config: {
+    biomes: ["temperate", "arctic", "desert"],
+    rules: "aln_rules/procgen_rules.aln"
+  },
+  output: {
+    terrain: "data/terrain/",
+    assets: "data/assets/"
+  }
+}

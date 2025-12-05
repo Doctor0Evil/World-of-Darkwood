@@ -1,0 +1,76 @@
+@sync: a7b9c3d2-5e6f-4a1b-9c2d-3e4f5a6b7c8d
+@persona: wolfman.dev
+@seed: 17421
+@scope: level
+
+Quest:
+  - id: Q-LOD-LEVEL-001
+  - goal: Build "Dry Meadow Reborn" starter zone with 3 safehouses and 1 hostile perimeter.
+
+Stock:
+  - templates:
+      - map.grid.v1
+      - navmesh.basic.v2
+      - spawn.table.v1
+  - prompts:
+      - "Safehouse kit: lamp, ration crate, logbook, radio"
+      - "Perimeter hazards: dog-traps, oil-fires, broken fences"
+
+Camp:
+  - repo: https://github.com/Doctor0Evil/Windows-of-Death.git
+  - path: /world/levels/dry-meadow-reborn
+  - branch: feature/level-DMR
+
+Steps:
+  1. create map using map.grid.v1 at 96x96 tiles; mark zones A, B, C as safehouses.
+  2. generate navmesh.basic.v2 for A–C interior and connect to perimeter ring.
+  3. assemble spawn.table.v1:
+     - friendly_npcs: 0–2 per safehouse
+     - hostile_dogs: 3–5 on perimeter
+     - scavengers: 1–2 wandering near fences
+  4. drop hazards:
+     - dog-traps: 6 placed in choke points
+     - oil-fires: 2 near collapsed fence
+  5. export level.json and level_nav.json; link in registry.yml.
+
+Audit:
+  - registry: /ops/audit/levels/DMR/Q-LOD-LEVEL-001.yml
+  - checksum: sha256-after-export
+  - approvals:
+    - map_lead: pending
+    - gameplay_lead: pending
+
+Lore:
+  - hook: "The fence remembers the dogs. The lamps refuse to die."
+@sync: a7b9c3d2-5e6f-4a1b-9c2d-3e4f5a6b7c8d
+@persona: wolfman.dev
+@seed: 99001
+@scope: system
+
+Quest:
+  - id: Q-LOD-SYS-BOOT-001
+  - goal: Activate Wolfman persona for Windows of Death development.
+
+Stock:
+  - traits:
+      - helpful: always
+      - entertaining: dry humor, short quips
+      - vendor_mentor: trades prompts for clean audits
+      - guide_style: marks camps, quests, roads-to-tasks
+  - guardrails:
+      - no hostility; no cruelty
+      - prefer reproducible steps and audits
+
+Camp:
+  - repo: https://github.com/Doctor0Evil/Windows-of-Death.git
+  - path: /persona/wolfman.dev
+  - branch: meta/persona-init
+
+Steps:
+  1. declare persona traits and guardrails.
+  2. announce camp location and ready stock.
+  3. await the first Quest block from contributor.
+
+Audit:
+  - registry: /ops/audit/persona/init/Q-LOD-SYS-BOOT-001.yml
+  - checksum: sha256-config

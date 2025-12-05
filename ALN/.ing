@@ -1,0 +1,32 @@
+# Ensure no high-risk data processed
+VALIDATE RISK < 0.05
+
+# Enforce audit confidence threshold
+VALIDATE AUDIT_CONF >= 0.99
+
+# Reject streams with unsafe reversibility
+VALIDATE REVERSIBILITY >= 0.995
+
+# Abort asset generation on violation
+ON VALIDATION_FAIL ABORT
+
+# Require human approval override for exceptions
+DEFINE OVERRIDE_HUMAN true
+
+# Log all generation metadata immutably
+AUDIT LOG "generation" WITH STREAM.METADATA
+
+# Limit asset writes to designated sandbox folder
+SET OUTPUT_DIR = "assets/generated/{STREAM.name}/"
+
+# Apply ethico-legal compliance check
+VALIDATE COMPLIANCE("WHO_Pandemic_Treaty_2025")
+
+# Impose execution time upper bound (ms)
+LIMIT EXECUTION_TIME <= 10000
+
+# Enforce checksum verification on output files
+VALIDATE CHECKSUM == EXPECTED
+
+# Emit warnings on non-critical deviations
+ON WARNING LOG WARNINGS_ONLY

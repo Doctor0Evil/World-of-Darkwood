@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SceneDefinition",
+  "type": "object",
+  "required": ["scene_id", "description", "objects", "environment", "combat_sequence", "status_effects"],
+  "properties": {
+    "scene_id": { "type": "string" },
+    "description": { "type": "string" },
+    "objects": {
+      "type": "object",
+      "properties": {
+        "player": { "type": "object" },
+        "wild_dog": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "environment": {
+      "type": "object",
+      "properties": {
+        "terrain": { "type": "string" },
+        "obstacles": { "type": "array", "items": { "type": "string" } },
+        "light_level": { "type": "number" },
+        "fog_intensity": { "type": "number" }
+      },
+      "required": ["terrain"]
+    },
+    "combat_sequence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "actor": { "type": "string" },
+          "action": { "type": "string" },
+          "time": { "type": "number" }
+        },
+        "required": ["actor", "action", "time"]
+      }
+    },
+    "status_effects": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "duration": { "type": "number" },
+          "visual": { "type": "string" }
+        },
+        "required": ["duration"]
+      }
+    }
+  }
+}

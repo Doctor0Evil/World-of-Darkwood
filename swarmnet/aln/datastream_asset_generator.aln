@@ -1,0 +1,10 @@
+# Datastream Asset Generator (Safe Mode)
+# Precondition: safety gates passed in CI.
+
+BEGIN_PIPELINE:
+  LOAD "swarmnet/datastreams/*.ing" AS DATASTREAMS
+  FOR EACH STREAM IN DATASTREAMS:
+    VALIDATE STREAM "p_contact == 0 && risk <= 0.05 && audit_conf >= 0.99 && reversibility >= 0.995"
+    GENERATE ASSETS SAFE USING STREAM INTO "assets/generated/{STREAM.name}/"
+    AUDIT LOG "generated-assets" WITH STREAM.METADATA
+END_PIPELINE

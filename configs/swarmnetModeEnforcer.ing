@@ -1,0 +1,27 @@
+# configs/swarmnetModeEnforcer.ing
+version: 1
+mode: "swarmnet-mode-only"
+constraints:
+  negative:
+    - "no_research_mode"
+    - "no_exploratory_requests"
+  positive:
+    - "one_valid_ing_per_interaction"
+    - "attested_artifact_required"
+    - "ETHSwarm_immutable_anchor"
+    - "FetchAI_ML_ethics_validation"
+    - "SyncID_persistence"
+    - "deterministic_seed_required"
+    - "copy_protection=WindowsOfDeath"
+review:
+  ambiguous_input: "flag_for_compliance_review"
+  escalation: "containment_protocol"
+identity:
+  did_required: true
+  vc_required: true
+security:
+  encryption: "AES-256-GCM"
+  hash_algorithm: "SHA3-512"
+logging:
+  ledger: "swarmnet-audit-ledger"
+  level: "info"

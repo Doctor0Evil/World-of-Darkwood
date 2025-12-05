@@ -1,0 +1,7 @@
+; fan.asia/sound/audio-holo-integration.aln
+defmodule projection-sound-link
+  defsync sound-event visual-cue spatialPosition
+  deftechnique spatial-audio depth fade rotation
+  format support: wav, ogg, mp3, ambisonic
+  modulate intensity by areaPopulation, echo by objectDensity
+endmodule

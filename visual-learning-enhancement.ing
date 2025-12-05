@@ -1,0 +1,38 @@
+{
+  "visual-learning-enhancement": {
+    "description": "Binary-compatible visual-learning extension for safe AI model interpretation in game environments.",
+    "execution_policy": {
+      "runtime": "alan-code.toolz.v1.0",
+      "scope": "visual-processing-unit",
+      "framework": "web5-visual-binary",
+      "copy_protection": "WindowsOfDeath-kernel-persistence",
+      "safe_learning": true,
+      "session": {
+        "sync_id": "a7b9c3d2-5e6f-4a1b-9c2d-3e4f5a6b7c8d",
+        "deterministic_seed": 1337
+      }
+    },
+    "compliance": [
+      {
+        "standard": "safe-visual-ai",
+        "mode": "strict"
+      },
+      {
+        "standard": "binary-unit-compatibility",
+        "mode": "verified"
+      }
+    ],
+    "assets": [
+      {
+        "asset_id": "aii-visual-001",
+        "type": "game-visual-enhancer",
+        "format": ".aii",
+        "integrity_hash": "ed3f1b92a12aa54f6e7813e48f97aa19"
+      }
+    ],
+    "logging": {
+      "immutable_record": true,
+      "ledger_endpoint": "/api/v1/visual/logs"
+    }
+  }
+}

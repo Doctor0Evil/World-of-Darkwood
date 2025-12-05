@@ -1,0 +1,18 @@
+{
+  "policy_id": "nanoswarm.session.v1",
+  "entry": "session",
+  "quotas": {
+    "max_parallel_streams": 2,
+    "max_placement_events_per_min": 30
+  },
+  "audit": {
+    "require_chat_actor_id": true,
+    "require_repo_ref": true,
+    "log_sink": "logs/actions/nanoswarm_sessions.log"
+  },
+  "security": {
+    "fs_readonly_mounts": ["assets", "data/ledger"],
+    "deny_shell_exec": true,
+    "allow_aln_tasks": ["vh_project", "generate_assets"]
+  }
+}

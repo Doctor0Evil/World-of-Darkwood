@@ -1,0 +1,59 @@
+# Swarmnet Custom Connector .aii Configuration Example
+
+CONNECTOR "MyCustomGameConnector" {
+  DESCRIPTION "Production-grade connector for game asset updates"
+  ENDPOINT {
+    URL "https://connector.mygameworks.com/api/v1"
+    PORT 443
+    PROTOCOL HTTPS
+  }
+  
+  AUTHENTICATION {
+    TYPE "Bearer"              # Options: None, Basic, Bearer, OAuth2.1
+    TOKEN "ReplaceWithYourSecureAPIToken"
+    HEADER_NAME "Authorization"
+    HEADER_TYPE "Bearer"
+  }
+  
+  SECURITY {
+    ENCRYPTION TLSv1.3
+    ACCESS_CONTROL {
+      ALLOW [
+        "10.0.0.0/24",       # Allowed IP range for internal swarmnet nodes
+        "172.16.5.20"        # Specific trusted server IP
+      ]
+      DENY [
+        "0.0.0.0/0"           # Deny all other non-allowed IPs
+      ]
+    }
+  }
+  
+  METADATA {
+    OWNER "YourOrgOrTeamName"
+    VERSION "1.0.0"
+    CREATED_AT "2025-09-26T20:31:00Z"
+  }
+  
+  LOGGING {
+    ENABLED true
+    LEVEL "INFO"              # Options: ERROR, WARN, INFO, DEBUG
+    DESTINATION "swarmnet-ledger"  # Immutable decentralized audit log
+  }
+}
+
+POLICY "ConnectorAccessPolicy" {
+  SCOPE "MyCustomGameConnector"
+  RULES {
+    ALLOW_USAGE ["readAssets", "updateAssets"]
+    DENY_USAGE ["deleteAssets", "modifyCoreSystems"]
+    AUDIT true
+  }
+}
+
+# System save-state example (ansI-encoded):
+SAVE_STATE "GameConnectorSetupState" {
+  TIMESTAMP "2025-09-26T20:31:00Z"
+  CONNECTOR "MyCustomGameConnector"
+  POLICY "ConnectorAccessPolicy"
+  STATUS "ACTIVE"
+}

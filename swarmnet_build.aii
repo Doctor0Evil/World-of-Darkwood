@@ -1,0 +1,8 @@
+[ 
+  agent "WebBuilder" { skills: ["html_clean","css_fix","asset_sync"], repo: "github:Doctor0Evil/Windows-of-Death" },
+  agent "Narrative" { skills: ["lore_seed","content_patch"], repo: "github:Doctor0Evil/Windows-of-Death/docs" },
+  driver "git" { branch:"main", sync:true },
+  driver "wasm" { contracts:["approvals/place_v1.wasm"] },
+  policy "audit" { require_actor:true, log:"logs/actions/web_build.log" },
+  run "continuous_build" { trigger:"push", steps:["git_sync","asset_validate","deploy_preview"] }
+]

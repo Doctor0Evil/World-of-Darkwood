@@ -1,0 +1,9 @@
+run "vh_config" {
+  profile: "gaming_v1",
+  resources: {
+    gpu: "high",
+    cpu: "16_core",
+    memory: "32gb"
+  },
+  interface: "remote_desktop"
+}

@@ -1,0 +1,14 @@
+run "char_system" {
+  components: [
+    {
+      name: "wanderer_prototype",
+      model: "models/human_base.fbx",
+      traits: [
+        "stealth_step",
+        "hill_climb",
+        "ledge_balance"
+      ]
+    }
+  ],
+  validation: "wasm/char_validation.wasm"
+}

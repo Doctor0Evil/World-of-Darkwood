@@ -1,0 +1,14 @@
+# File: configs/virt/projection.yml
+projection:
+  transport: "wasm_channel"
+  codec: "h264_low_latency"
+  auth: "token"
+  desktop_profile: "creator"
+  fs_mounts:
+    - path: "assets"
+      mode: "ro"
+    - path: "data/ledger"
+      mode: "ro"
+  gpu:
+    vendor: "virtual"
+    caps: ["skinning_preview", "shader_validation"]

@@ -1,0 +1,40 @@
+# File: ops/runner.bitshell
+param(
+  [string]$Config = "ops/configs/build_pipeline.ing"
+)
+
+Write-Host "=== Windows-of-Death Local Runner ==="
+Write-Host "Loading config from $Config"
+
+# Parse .ing payload (YAML/JSON hybrid)
+$config = Get-Content $Config | ConvertFrom-Json
+
+# Step 1: Git sync
+if ($config.steps -contains "git_sync") {
+  Write-Host "[SYNC] Pulling latest from remote..."
+  git pull origin main
+}
+
+# Step 2: WASM contracts
+if ($config.steps -contains "build_wasm") {
+  Write-Host "[BUILD] Compiling WASM contracts..."
+  pushd wasm/contracts
+  cargo build --release --target wasm32-unknown-unknown
+  popd
+}
+
+# Step 3: ALN batch generator
+if ($config.steps -contains "generate_assets") {
+  Write-Host "[ALN] Running batch generator..."
+  aln run generate_assets `
+    --input registry/assets.yml `
+    --output data/ledger/placements.ndjson `
+    --seed "session:$(Get-Date -Format yyyyMMddHHmmss)"
+}
+
+# Step 4: Audit logs
+if ($config.steps -contains "audit") {
+  $log = "logs/actions/local_runner.log"
+  "$(Get-Date -Format o) | Runner executed with config $Config" | Add-Content $log
+  Write-Host "[LOG] Audit entry written to $log"
+}

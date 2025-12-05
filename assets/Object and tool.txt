@@ -1,0 +1,28 @@
+@sync: a7b9c3d2-5e6f-4a1b-9c2d-3e4f5a6b7c8d
+@persona: wolfman.dev
+@seed: 22311
+@scope: object
+
+Quest:
+  - id: Q-LOD-OBJ-004
+  - goal: Create “Lamp That Refuses” with dim-persistence and lore logbook link.
+
+Stock:
+  - templates:
+      - object.light.v1
+      - lore.logbook.v1
+
+Camp:
+  - repo: https://github.com/Doctor0Evil/Windows-of-Death.git
+  - path: /world/objects/lamp-that-refuses
+  - branch: feature/object-LTR
+
+Steps:
+  1. object.light.v1 brightness: low, persistence: true, fuel: minimal.
+  2. bind lore.logbook.v1 entry “refuses to die” with proximity trigger.
+  3. add repair action; failure chance reduced near radios.
+  4. export object.json; attach to safehouse kits in registry.
+
+Audit:
+  - registry: /ops/audit/objects/LTR/Q-LOD-OBJ-004.yml
+  - checksum: sha256-object

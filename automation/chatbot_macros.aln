@@ -1,0 +1,16 @@
+# automation/chatbot_macros.aln
+module ChatbotMacros {
+  version = 1
+  seed = 70001
+
+  macro "[CR]" { requires: title, artifact, scope, risk, backout, seed, audit_id, owner, reviewers, tags }
+  macro "[APPROVE]" { requires: audit_id, rationale }
+  macro "[BLOCK]" { requires: audit_id, reason }
+
+  macro "[PLACE-ASSET]" { requires: asset_id, target_path, biome_id, seed, reviewers>=2 }
+  macro "[VERIFY-PLACEMENT]" { requires: placement_request_id; action: recompute_hash; outcome: approve|block }
+  macro "[SYNC-ANCHOR]" { requires: audit_id; action: anchor_to("Bit.Hub","ETHSwarm") }
+  macro "[CREDIT-STAMP]" { requires: handle, role, artifact_id, timestamp_utc; policy: kernel_persistence }
+
+  compliance { identity_anchor = true; immutable_log = true }
+}

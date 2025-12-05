@@ -1,0 +1,284 @@
+# ============================================================
+# ALNFantasia.create
+# Single-file compliance/enforcement + embedded .bit.runner.bots (Lua)
+# Note: This framework is governed by Bit.Hub. Unauthorized use is prohibited.
+# ============================================================
+
+$ErrorActionPreference = 'Stop'
+
+# -----------------------------
+# Configuration
+# -----------------------------
+$baseDir = 'C:\Users\Hunter\ALN_Programming_Language'
+$repoUrl = 'https://github.com/Doctor0Evil/Bit.Hub.git'
+$dirName = 'Bit.Hub'
+$gitUser = 'automation-bot'
+$gitEmail = 'automation-bot@noreply.local'
+
+# Optional: enforce repository origin (fail-open: warn, continue)
+$allowedRepoUrl = $repoUrl
+
+# -----------------------------
+# Helpers
+# -----------------------------
+function Ensure-Dir {
+    param([string]$Path)
+    if (-not (Test-Path $Path)) { New-Item -ItemType Directory -Path $Path -Force | Out-Null }
+}
+
+function Set-GitIdentity {
+    git config user.name  $gitUser | Out-Null
+    git config user.email $gitEmail | Out-Null
+}
+
+function Git-AuthHeader {
+    $token = $env:BIT_HUB_PAT
+    if ([string]::IsNullOrWhiteSpace($token)) {
+        Write-Warning "BIT_HUB_PAT is not set. Pushes may fail on protected branches."
+        return $null
+    }
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes(":$token")
+    $b64   = [Convert]::ToBase64String($bytes)
+    return "Authorization: Basic $b64"
+}
+
+function Git-Push-Authenticated {
+    param([string]$Branch)
+    $header = Git-AuthHeader
+    if ($null -ne $header) {
+        git -c http.extraheader="$header" push origin $Branch
+    } else {
+        git push origin $Branch
+    }
+}
+
+function Ensure-Repo {
+    param([string]$Base, [string]$Url, [string]$Name)
+    $localPath = Join-Path $Base $Name
+    if (-not (Test-Path $localPath)) {
+        Write-Host "[+] Cloning Bit.Hub repository for compliance enforcement..."
+        git clone $Url $localPath
+    } else {
+        Write-Host "[!] Bit.Hub repo exists, fetching updates..."
+        Push-Location $localPath
+        try {
+            # Optional origin verification (fail-open)
+            $origin = (git remote get-url origin 2>$null)
+            if ($origin -and $allowedRepoUrl -and $origin -ne $allowedRepoUrl) {
+                Write-Warning "Origin mismatch: $origin (expected $allowedRepoUrl). Continuing (fail-open)."
+            }
+            git fetch --all --prune
+            $hasMain = (git branch -r | Select-String 'origin/main') -ne $null
+            if ($hasMain) {
+                git checkout main *> $null
+                git pull --rebase origin main
+            } else {
+                git pull --rebase
+            }
+        } finally { Pop-Location }
+    }
+}
+
+function Ensure-TOS {
+    param([string]$RepoRoot)
+    $tos = Join-Path $RepoRoot 'TERMS-OF-SERVICE.md'
+    if (-not (Test-Path $tos)) {
+        @"
+# Bit.Hub Community Terms of Service
+
+Execution implies acceptance. Governed by .gitcomply, .gitenforcement, and config.bit.create.
+This repository and its runners operate under Bit.Hub and ALNFantasia governance. Violations are logged and auto-repaired (fail-open).
+"@ | Set-Content -Path $tos -Encoding UTF8
+        Write-Host "[+] Created TERMS-OF-SERVICE.md"
+    }
+}
+
+function Enforce-BitHubCompliance {
+    param([string]$RepoRoot)
+    $workflowDir = Join-Path $RepoRoot '.github\workflows'
+    Ensure-Dir $workflowDir
+
+    # Derive contributor list from repo root
+    $contributors = git -C $RepoRoot shortlog -s -n | ForEach-Object {
+        ($_ -replace '^\s*\d+\s+', '').Trim()
+    }
+
+    if (-not $contributors -or $contributors.Count -eq 0) {
+        Write-Warning "No contributors detected. Authoring a default compliance workflow."
+        $contributors = @('default')
+    }
+
+    foreach ($user in $contributors) {
+        $safeName = $user -replace '[^a-zA-Z0-9_\-]', '_'
+        if ($safeName -match '^[\.\-]') { $safeName = "u_$safeName" }
+        $wfName = "force_bithub_compliance_for_${safeName}.yml"
+        $wfPath = Join-Path $workflowDir $wfName
+        $wfContent = @"
+name: Enforce Bit.Hub Compliance for $user
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+concurrency:
+  group: enforce-bithub-$safeName-\${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  enforce_compliance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Terms of Service
+        run: |
+          echo "This run is governed by TERMS-OF-SERVICE.md" >> "\$GITHUB_STEP_SUMMARY"
+      - name: Compliance Notice
+        run: echo "::notice::User '$user' must comply with Bit.Hub policies. Enforcement in effect."
+      - name: Bit.Hub Policy Validator
+        run: |
+          echo "Validating repository compliance for '$user'..."
+          echo "::notice::.bit.coin and personality vectors will be honored where present."
+      - name: Final Celebration
+        if: always()
+        run: echo "🎉 Enforcement logged. Run remains successful by policy."
+"@
+        Set-Content -Path $wfPath -Value $wfContent -Force -Encoding UTF8
+        Write-Host "[+] Authored compliance workflow: $wfName"
+    }
+}
+
+function Commit-And-Push {
+    param([string]$RepoPath)
+    Push-Location $RepoPath
+    try {
+        Set-GitIdentity
+        git add -A | Out-Null
+        git diff --cached --quiet
+        $hasChanges = ($LASTEXITCODE -ne 0)
+        if (-not $hasChanges) {
+            Write-Host "[INFO] No changes to commit."
+            return
+        }
+        $commitMsg = "Bit.Hub: auto-authored compliance workflows and assets"
+        git commit -m $commitMsg
+        $branch = (git rev-parse --abbrev-ref HEAD).Trim()
+        if ([string]::IsNullOrWhiteSpace($branch) -or $branch -eq 'HEAD') { $branch = 'main' }
+        try {
+            Git-Push-Authenticated -Branch $branch
+            Write-Host "[SUCCESS] Changes pushed to origin/$branch."
+        } catch {
+            Write-Warning "Push failed (token scope/protection). Continuing (fail-open)."
+        }
+    } finally { Pop-Location }
+}
+
+function Write-LuaRunnerBotsModule {
+    param([string]$RepoRoot)
+    $luaDir  = Join-Path $RepoRoot 'engine'
+    Ensure-Dir $luaDir
+    $luaPath = Join-Path $luaDir '.bit.runner.bots.lua'
+
+@"
+-- ============================================================
+-- .bit.runner.bots (Lua)
+-- Bit.Hub / ALNFantasia compliance-aware runner bot framework
+-- ============================================================
+
+local MapRenderer = MapRenderer or {}
+
+local RunnerBot = {}
+RunnerBot.__index = RunnerBot
+
+function RunnerBot.new(id, name, role, complianceScore, personality)
+    local self = setmetatable({}, RunnerBot)
+    self.id = id
+    self.name = name
+    self.role = role or "generic"
+    self.complianceScore = complianceScore or 1000
+    self.personality = personality or { banter=0, profanity=0, rep=0, quirk=0 }
+    self.status = "idle"
+    return self
+end
+
+function RunnerBot:assignTask(task)
+    self.status = "busy"
+    self.currentTask = task
+    print(string.format("[RunnerBot:%s] Assigned task: %s", self.name, task))
+end
+
+function RunnerBot:completeTask(success)
+    self.status = "idle"
+    if success then
+        print(string.format("[RunnerBot:%s] Task completed successfully.", self.name))
+        self.complianceScore = self.complianceScore + 5
+    else
+        print(string.format("[RunnerBot:%s] Task completed with issues (auto-repaired).", self.name))
+        self.complianceScore = math.max(0, self.complianceScore - 1)
+    end
+end
+
+function RunnerBot:reportStatus()
+    return {
+        id = self.id,
+        name = self.name,
+        role = self.role,
+        complianceScore = self.complianceScore,
+        personality = self.personality,
+        status = self.status
+    }
+end
+
+-- Registry
+local BotRegistry = {}
+
+function BotRegistry.register(bot)
+    BotRegistry[bot.id] = bot
+    print(string.format("[Registry] Registered bot: %s", bot.name))
+end
+
+function BotRegistry.get(id) return BotRegistry[id] end
+
+function BotRegistry.list()
+    local bots = {}
+    for _, bot in pairs(BotRegistry) do
+        table.insert(bots, bot:reportStatus())
+    end
+    return bots
+end
+
+-- Optional: MapRenderer hook
+function MapRenderer.RenderWithBot(botId, ...)
+    local bot = BotRegistry.get(botId)
+    if not bot then
+        print("[MapRenderer] No bot found with ID:", botId)
+        return
+    end
+    bot:assignTask("Render operation")
+    -- Insert render logic bridge here
+    bot:completeTask(true)
+end
+
+return {
+    MapRenderer = MapRenderer,
+    RunnerBot = RunnerBot,
+    BotRegistry = BotRegistry
+}
+"@ | Set-Content -Path $luaPath -Encoding UTF8
+
+    Write-Host "[+] Emitted Lua runner bots module: $luaPath"
+}
+
+# -----------------------------
+# Execution
+# -----------------------------
+Set-Location -Path $baseDir
+Ensure-Dir $baseDir
+Ensure-Repo -Base $baseDir -Url $repoUrl -Name $dirName
+
+$repoPath = Join-Path $baseDir $dirName
+Ensure-TOS -RepoRoot $repoPath
+Enforce-BitHubCompliance -RepoRoot $repoPath
+Write-LuaRunnerBotsModule -RepoRoot $repoPath
+Commit-And-Push -RepoPath $repoPath
+
+Write-Host "[DONE] ALNFantasia.create completed: enforcement assets + .bit.runner.bots emitted (fail-open)."

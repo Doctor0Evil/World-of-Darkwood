@@ -1,0 +1,35 @@
+TIER I – FOUNDATION
+ ├─ Muhammad‑Ali (+10 Unarmed, +15 if stamina >50%)
+ ├─ Eagle Eye (+15% vision radius)
+ ├─ Quick Hands (reload/use items 20% faster)
+ └─ Roll the Dice! (15% crit/evade/survive once per encounter)
+      ↓ Requires 1 Negative Trait
+        ├─ Fragile (+10% damage taken)
+        └─ Light Sleeper (higher chance of night events)
+
+TIER II – ADAPTATION
+ ├─ Runner (longer sprint, less stamina loss)
+ ├─ Moth (heal slowly near powered lights, once/day)
+ ├─ Silent Step (reduced movement noise)
+ └─ Master Key (locks/barricades never jam, crafting always succeeds)
+      ↓ Requires 1 Negative Trait
+        ├─ Weakened Stomach (healing items 20% less effective)
+        └─ Tunnel Vision (reduced peripheral awareness)
+
+TIER III – CONTROL
+ ├─ Meta‑Mechanic (reshape environment into temporary biomes; control swarm‑like particles)
+ ├─ Third Eye (see all around you for 60s, once/day)
+ ├─ Adrenaline (+25% melee damage when <25% HP)
+ └─ Scream (scare off nearby enemies, once/day)
+      ↓ Requires 1 Negative Trait
+        ├─ Poison Susceptibility (+25% poison damage)
+        └─ Exhaustion (slower stamina recovery)
+
+TIER IV – MASTERY
+ ├─ Chameleon (invisible if still for 30s, once/day)
+ ├─ Blood Curse (melee causes bleed; your blood damages enemies)
+ ├─ Vitality (+20% max health)
+ └─ Shadowmeld (immune to traps once/day)
+      ↓ Requires 1 Negative Trait
+        ├─ Haunted (night events escalate faster)
+        └─ Blurred Vision (distorted screen edges when damaged)

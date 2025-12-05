@@ -1,0 +1,68 @@
+characters:
+  - id: wanderer_001
+    archetype: Wanderer
+    capabilities:
+      movement: [stealth_step, hill_climb, ledge_balance]
+    safety:
+      ml_model_checksum: "sha256-abc123..."
+      ethical_review: "approved"
+    capabilities:
+      movement: [stealth_step, hill_climb, ledge_balance]
+      interaction: [campcraft, trail_mark, bind_wound]
+      perception: [night_listen, scent_track, horizon_scan]
+    affinities: [woodcraft, lore_binding, pactkeeping]
+    narrative_flags:
+      oath_stone: true
+      scar_silent: true
+    skill_web: [quiet_fire, wind_read, line_cast]
+    reputation:
+      Wardens: trusted
+      Tidebound: unknown
+
+biomes:
+  - id: temperate_tree_001
+    type: prop
+    category: flora
+    name: Temperate Tree
+    model: assets/models/temperate_tree.glb
+    behavior: sway_in_wind
+  - id: rock_formation_001
+    type: prop
+    category: geology
+    name: Rock Formation
+    model: assets/models/rock_formation.glb
+
+encounter_props:
+  - id: campfire_001
+    type: interactable
+    name: Campfire
+    model: assets/models/campfire.glb
+    behavior: light_emitter
+  - id: hidden_cache_001
+    type: interactable
+    name: Hidden Cache
+    model: assets/models/cache_box.glb
+    behavior: loot_container
+  - id: wild_animal_001
+    type: npc
+    archetype: Predator
+    behavior: patrol
+  - id: ancient_statue_001
+    type: prop
+    category: structure
+    name: Ancient Statue
+    model: assets/models/ancient_statue.glb
+    lore: "Relic of the Old Kingdom"
+  - id: forest_altar_001
+    type: ritual
+    name: Forest Altar
+    interaction: offer_sacrifices
+
+characters:
+  - id: wanderer_001
+    archetype: Wanderer
+    capabilities:
+      movement: [stealth_step, hill_climb, ledge_balance]
+    safety:
+      ml_model_checksum: "sha256-abc123..."
+      ethical_review: "approved"
