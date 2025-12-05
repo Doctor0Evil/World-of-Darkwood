@@ -1,0 +1,50 @@
+TASK_BLOCK
+  id: WOD-LEVEL-DryMeadowReborn-001
+  scope: level
+  owner_role: level_design
+
+  QUEST
+    goal: "Build Dry Meadow Reborn starter zone with 3 safehouses and 1 hostile perimeter."
+  ENDQUEST
+
+  STOCK
+    templates:
+      - map.grid.v1
+      - navmesh.basic.v2
+      - spawn.table.v1
+    prompts:
+      - "Safehouse kit: lamp, ration crate, logbook, radio"
+      - "Perimeter hazards: dog-traps, oil-fires, broken fences"
+  ENDSTOCK
+
+  CAMP
+    repo_ref: World-of-Darkwood
+    path: /world/levels/dry_meadow_reborn
+    branch_hint: feature/level-dry-meadow-reborn
+  ENDCAMP
+
+  STEPS
+    - "Create base layout using map.grid.v1 at 96x96 tiles; mark zones A, B, C as safehouses."
+    - "Generate navmesh.basic.v2 for A–C interiors and connect them to an outer perimeter ring."
+    - "Assemble spawn.table.v1 with:
+         friendly_npcs: 0–2 per safehouse,
+         hostile_dogs: 3–5 on perimeter,
+         scavengers: 1–2 wandering near fences."
+    - "Place perimeter hazards:
+         dog-traps: 6 in corridor/choke points,
+         oil-fires: 2 near a collapsed fence segment."
+    - "Export level.json and level_nav.json; register both in world/registry.yml."
+  ENDSTEPS
+
+  AUDIT
+    registry_path: /ops/audit/levels/dry_meadow_reborn/WOD-LEVEL-DryMeadowReborn-001.yml
+    checksum_policy: sha256-after-export
+    approvals:
+      level_design_lead: pending
+      gameplay_lead: pending
+  ENDAUDIT
+
+  LORE_HOOK
+    summary: "The fence remembers the dogs. The lamps refuse to die."
+  ENDLORE_HOOK
+ENDTASK_BLOCK
