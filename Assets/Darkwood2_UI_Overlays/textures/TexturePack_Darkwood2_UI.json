@@ -1,0 +1,15 @@
+{
+  "id": "TexturePack_Darkwood2_UI",
+  "format": "PNG32_premultiplied",
+  "tiles": [
+    { "id": "ui/dialogue/rotted_frame",  "size": [512,192], "bleed": 3, "pivot": "center" },
+    { "id": "ui/dialogue/spindle_frame", "size": [512,192], "bleed": 3, "pivot": "center" },
+    { "id": "ui/dialogue/ash_frame",     "size": [512,192], "bleed": 3, "pivot": "center" },
+    { "id": "fx/ghost_0",                "size": [128,128], "bleed": 2, "pivot": "center" }
+  ],
+  "render": {
+    "alphaMode": "premultiplied",
+    "mipBias": -0.25,
+    "dither": "blueNoise8"
+  }
+}
