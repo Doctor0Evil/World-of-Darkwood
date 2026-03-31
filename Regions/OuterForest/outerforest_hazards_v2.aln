@@ -1,0 +1,44 @@
+aln
+BRANCH region.outerforest.hazards.v2
+IMPORT core.environment, core.hazard, coresignal, coreplayer
+END
+
+ACTION check_hazards
+INPUT timeofday string, weather string, fogdensity float, player map, region_id string, tile_id string
+END
+EXEC
+  inv HorrorInvariantsBridge.eval_invariants(region_id, tile_id, player)
+
+  cic inv.CIC
+  mdi inv.MDI
+  det inv.DET
+  hvf inv.HVF
+
+  ENGINE.Call("Debug.log", "[OuterForest] CIC=" + cic + " MDI=" + mdi + " DET=" + det + " HVF=" + hvf)
+
+  HAZARDS []
+
+  -- Toxic miasma tracks CIC & HVF
+  if weather in "Fog","ThickFog" and fogdensity > 0.5 and cic > 0.5 then
+    HAZARDS.push({ type "ToxicMiasma", severity "medium" })
+  END
+
+  -- Whispering roots when myth + low exposure
+  if timeofday == "Night" and mdi > 0.4 and det < 0.5 then
+    HAZARDS.push({ type "WhisperingRoots", severity "low" })
+  END
+
+  if HAZARDS.length == 0 then
+    if ENGINE.CallReturn("Hazards.has_active", region_id) then
+      ENGINE.Call("OuterForest.clear_effects", region_id)
+      ENGINE.Call("Debug.log", "[OuterForest] Cleared residual effects.")
+    END
+  else
+    for h in HAZARDS
+      ENGINE.Call("Hazards.apply", h, player)
+      SIGNAL.Emit("hazardtriggered", { biome "OuterForest", hazard h.type, severity h.severity, playerid player.id })
+      ENGINE.Call("Debug.log", "[OuterForest] Applied hazard " + h.type + " severity=" + h.severity)
+    END
+  END
+END
+END
