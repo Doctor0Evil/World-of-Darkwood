@@ -1,0 +1,74 @@
+aln
+SCENE TwinUnseenOuterForestTest.v1
+META purpose "IDE harness: validate HorrorInvariants across Twin, Unseen Presence, OuterForest."
+END
+
+SETUP
+  region_id "OuterForest_TestRidge"
+  tile_id   "OF_Tile_001"
+
+  ENGINE.Call("HistoryLayer.set_region_history", region_id, tile_id, {
+    CIC 0.82, MDI 0.63, AOS 0.74,
+    LSG 0.55, RRM 0.69, FCF 0.71,
+    RWF 0.6,  DET 0.3,  HVF 0.8
+  })
+
+  ENGINE.Call("Telemetry.set_local_metrics", region_id, tile_id, "test_player", {
+    cautious_movement 0.7,
+    camera_scanning 0.8,
+    voluntary_backtracking 0.5,
+    clue_interactions 0.4,
+    unresolved_threads 0.6,
+    safe_threat_contrast 0.5,
+    explanation_count_norm 0.7,
+    ambiguous_resolutions_ratio 0.8
+  })
+
+  player {
+    id "test_player",
+    hp 1.0,
+    sanity 0.5,
+    position { x 0, y 0 },
+    flags {}
+  }
+
+  room {
+    id "test_room",
+    region region_id,
+    tile   tile_id
+  }
+
+  ENGINE.Call("Debug.enable_channel", "INVARIANTS", true)
+  ENGINE.Call("Debug.enable_channel", "TWIN", true)
+  ENGINE.Call("Debug.enable_channel", "UNSEEN", true)
+  ENGINE.Call("Debug.enable_channel", "HAZARDS", true)
+END
+
+TICKLOOP
+  -- Sample invariants first
+  inv HorrorInvariantsBridge.eval_invariants(region_id, tile_id, player)
+
+  ENGINE.Call("Debug.log_channel", "INVARIANTS",
+    "[INV] CIC=" + inv.CIC + " MDI=" + inv.MDI + " AOS=" + inv.AOS +
+    " SPR=" + inv.SPR + " RRM=" + inv.RRM + " FCF=" + inv.FCF +
+    " DET=" + inv.DET + " HVF=" + inv.HVF +
+    " UEC=" + inv.UEC + " EMD=" + inv.EMD + " STCI=" + inv.STCI +
+    " CDL=" + inv.CDL + " ARR=" + inv.ARR)
+
+  -- Twin tick
+  CALL TwinCore.tick(player, region_id, tile_id)
+
+  -- Unseen Presence evaluation
+  CALL UnseenPresence.evaluate_and_apply(room, player, region_id, tile_id)
+
+  -- OuterForest hazards
+  CALL region.outerforest.hazards.v2.check_hazards(
+    ENGINE.CallReturn("WorldTime.get_time_of_day"),
+    ENGINE.CallReturn("Weather.get_state"),
+    ENGINE.CallReturn("Weather.get_fogdensity"),
+    player, region_id, tile_id)
+
+  -- Optional: mutate telemetry to simulate player changing behavior
+  ENGINE.Call("Telemetry.nudge_local_metrics", region_id, tile_id, "test_player")
+END
+END
