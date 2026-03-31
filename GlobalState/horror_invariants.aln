@@ -1,0 +1,26 @@
+aln
+MODULE HorrorInvariantsBridge.v1
+META purpose "Bridge ALN to Lua horror_invariants module."
+END
+
+-- ACTION: evaluate invariants for a given region + player snapshot.
+ACTION eval_invariants
+INPUT region_id string, tile_id string, player map
+END
+EXEC
+  -- Build context map for Lua
+  ctx region_id region_id, tile_id tile_id,
+      player_state player,
+      time_of_day ENGINE.CallReturn("WorldTime.get_time_of_day"),
+      contamination ENGINE.CallReturn("ContaminationSpiral.get_intensity"),
+      mood ENGINE.CallReturn("MoodCore.getmood"),
+      history ENGINE.CallReturn("HistoryLayer.get_region_history", region_id, tile_id),
+      telemetry ENGINE.CallReturn("Telemetry.get_local_metrics", region_id, tile_id, player.id)
+  END
+
+  invariants ENGINE.CallReturn("Lua.HorrorInvariants.sample_all", ctx)
+
+  ENGINE.Call("Debug.log_invariants", region_id, tile_id, invariants)
+  RETURN invariants
+END
+END
