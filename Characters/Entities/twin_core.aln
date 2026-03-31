@@ -1,0 +1,56 @@
+aln
+MODULE TwinCore.v2
+META purpose "Twin AI with invariant-aware behavior."
+END
+
+ACTION tick
+INPUT player map, region_id string, tile_id string
+END
+EXEC
+  inv HorrorInvariantsBridge.eval_invariants(region_id, tile_id, player)
+
+  -- Example: use SPR, SHCI, UEC to pick phase
+  spr inv.SPR
+  shci inv.SHCI
+  uec inv.UEC
+  emd inv.EMD
+
+  ENGINE.Call("Debug.log", "[Twin] Invariants SPR=" + spr + " SHCI=" + shci + " UEC=" + uec + " EMD=" + emd)
+
+  if spr < 0.3 or shci < 0.4 then
+    CALL TwinCore.phase_observation(player)
+  elif uec < 0.4 and emd < 0.5 then
+    CALL TwinCore.phase_evidential_harassment(player) -- raise EMD
+  else
+    CALL TwinCore.phase_manifestation(player)
+  END
+END
+END
+
+ACTION phase_observation
+INPUT player map
+END
+EXEC
+  ENGINE.Call("Twin.spawn_shadow_echo", player.position)
+  ENGINE.Call("Debug.log", "[Twin] Phase=Observation (shadow echo only).")
+END
+END
+
+ACTION phase_evidential_harassment
+INPUT player map
+END
+EXEC
+  ENGINE.Call("Twin.inject_subtle_clue", player.id)
+  ENGINE.Call("Audio.play_env_hint", "whisper_trace")
+  ENGINE.Call("Debug.log", "[Twin] Phase=EvidentialHarassment (increasing EMD, ARR).")
+END
+END
+
+ACTION phase_manifestation
+INPUT player map
+END
+EXEC
+  ENGINE.Call("Twin.spawn_physical_form", player.position)
+  ENGINE.Call("Debug.log", "[Twin] Phase=Manifestation (full encounter).")
+END
+END
