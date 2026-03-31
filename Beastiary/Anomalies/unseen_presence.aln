@@ -1,0 +1,34 @@
+aln
+ANOMALY UnseenPresence.v2
+META id "anom_unseenpresence", class "Atmospheric"
+END
+
+ACTION evaluate_and_apply
+INPUT room map, player map, region_id string, tile_id string
+END
+EXEC
+  inv HorrorInvariantsBridge.eval_invariants(region_id, tile_id, player)
+
+  spr inv.SPR
+  aap inv.AOS
+  emd inv.EMD
+  arr inv.ARR
+
+  ENGINE.Call("Debug.log", "[UnseenPresence] SPR=" + spr + " AOS=" + aap + " EMD=" + emd + " ARR=" + arr)
+
+  if spr < 0.2 then
+    RETURN -- too implausible here
+  END
+
+  -- Increase dissonance and ambiguity in high opacity, low-resolution zones
+  if aap > 0.6 and arr > 0.5 then
+    ENGINE.Call("Atmosphere.spawn_coldspot", room.id)
+    ENGINE.Call("Audio.play_cold_whisper", room.id)
+    ENGINE.Call("NPC.react_to_unseen", room.id)
+    ENGINE.Call("Debug.log", "[UnseenPresence] Applied coldspot/whisper (ambiguous).")
+  else
+    ENGINE.Call("Atmosphere.apply_glitch_cam", room.id)
+    ENGINE.Call("Debug.log", "[UnseenPresence] Applied glitch_cam only.")
+  END
+END
+END
